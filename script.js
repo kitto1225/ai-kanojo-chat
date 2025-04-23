@@ -101,7 +101,7 @@ async function sendMessage() {
         "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: "liquid/lfm-40b:free",
+        model: "shisa-ai/shisa-v2-llama3.3-70b:free",
         messages: [
           { role: "system", content: getPrompt() },
           { role: "user", content: userMessage }
