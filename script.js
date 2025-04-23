@@ -64,7 +64,19 @@ function updateLoveLevelDisplay() {
 
 function getPrompt() {
   const char = characters.find(c => c.name === selectedCharacter);
-  return char ? char.prompt : "あなたは優しいAI彼女です。";
+  const love = getLoveLevel();
+  if (!char) return "あなたは優しいAI彼女です。";
+
+  if (love >= 100) {
+    return `【デレMAX】${char.name}として話してください。${char.prompt}`;
+  } else if (love >= 70) {
+    return `【デレ強め】${char.name}として話してください。${char.prompt}`;
+  } else if (love >= 30) {
+    return `【友達以上恋人未満】${char.name}として話してください。${char.prompt}`;
+  } else {
+    return `【距離感あり】${char.name}として話してください。${char.prompt}`;
+  }
+}
 }
 
 function getImageName() {
@@ -175,4 +187,3 @@ function downloadLog() {
   a.download = `${selectedCharacter}_log.txt`;
   a.click();
 }
-
