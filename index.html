@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI彼女チャット</title>
 
-  <!-- ✅ PWA対応 -->
   <link rel="manifest" href="manifest.json" />
   <script>
     if ('serviceWorker' in navigator) {
@@ -44,24 +43,20 @@
     <button id="backBtn" style="margin-top: 10px;">戻る</button>
   </div>
 
-  <!-- ✅ service-worker.js をこの中で定義（テスト用） -->
+  <!-- ✅ 動的な service worker 登録用スクリプト -->
   <script type="text/javascript">
-    // テスト用：動的に service-worker.js を作る（実際は別ファイル推奨）
     const swBlob = new Blob([
       `self.addEventListener('install', event => {
          console.log('[ServiceWorker] Install');
          self.skipWaiting();
        });
-
        self.addEventListener('activate', event => {
          console.log('[ServiceWorker] Activate');
        });
-
        self.addEventListener('fetch', event => {
          event.respondWith(fetch(event.request));
        });`
     ], { type: 'application/javascript' });
-
     const swUrl = URL.createObjectURL(swBlob);
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register(swUrl).then(() => {
@@ -69,6 +64,5 @@
       }).catch(console.error);
     }
   </script>
-
 </body>
 </html>
