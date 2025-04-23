@@ -4,12 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI彼女チャット</title>
+
   <link rel="manifest" href="manifest.json" />
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js');
     }
   </script>
+
   <script defer src="script.js"></script>
   <style>
     body {
@@ -146,6 +148,7 @@
   <!-- 💬 チャット画面 -->
   <div id="chatScreen" class="screen">
     <h2 id="chatTitle">チャット</h2>
+    <div id="loveLevelDisplay">💗 親密度：0</div>
     <div id="chatLog"></div>
     <button id="downloadBtn" onclick="downloadLog()">このキャラのログを保存</button>
     <button id="resetBtn">ログをリセット</button>
