@@ -7,21 +7,15 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- ① 名前入力画面 -->
-  <div class="screen active" id="userNameScreen">
-    <h2>あなたの名前を教えてね💕</h2>
+  <!-- ① ホーム画面（キャラ＋名前入力） -->
+  <div class="screen active" id="homeScreen">
+    <h2>名前を入力して彼女を選んでね💕</h2>
     <input type="text" id="userNameInput" placeholder="例：ゆうき" />
-    <button id="saveUserNameBtn">はじめる</button>
-  </div>
-
-  <!-- ② ホーム画面（キャラ選択） -->
-  <div class="screen" id="homeScreen">
-    <h2>AI彼女を選んでね💕</h2>
+    <button id="saveUserNameBtn">名前を保存</button>
     <div id="characterList" class="character-list"></div>
-    <button id="changeNameBtn">名前を変更する</button>
   </div>
 
-  <!-- ③ チャット画面 -->
+  <!-- ② チャット画面 -->
   <div class="screen" id="chatScreen">
     <h2 id="chatTitle">チャット画面</h2>
     <div id="loveLevelDisplay">💗 親密度：0</div>
