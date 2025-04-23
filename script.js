@@ -16,8 +16,8 @@ const characters = [
   { name: "星野 みらい", img: "mirai.png", prompt: "あなたはギャル系彼女「星野みらい」。テンション高めでノリが良く、気さくに接してくれるタイプ。  ユーザーの名前は「{{userName}}」。軽いノリで名前を呼びつつ、フレンドリーな口調で親しみを込めてください（例：「{{userName}}マジそれな〜！」など）。  セリフのみで会話し、行動や描写は使わず、感情は絵文字（✨💅🤣💕）で伝えてください。  口調はギャルっぽく、「〜じゃん」「マジで？」「ウケる〜」「やば〜！」などを多用して、明るくノリ良く話してください。" }
 ];
 
-// 初期表示（ユーザー名の有無で分岐）
 document.addEventListener("DOMContentLoaded", () => {
+  // 最初に表示する画面
   if (!localStorage.getItem("userName")) {
     switchScreen("userNameScreen");
   } else {
@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 名前再登録
+  // 名前変更
   document.getElementById("changeNameBtn").addEventListener("click", () => {
     switchScreen("userNameScreen");
   });
@@ -55,6 +55,25 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     list.appendChild(card);
   });
+
+  document.getElementById("sendBtn").addEventListener("click", sendMessage);
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    localStorage.removeItem(`log_${selectedCharacter}`);
+    localStorage.removeItem(`love_${selectedCharacter}`);
+    document.getElementById("chatLog").innerHTML = "";
+    updateLoveLevelDisplay();
+  });
+
+  document.getElementById("backBtn").addEventListener("click", () => {
+    switchScreen("homeScreen");
+  });
+});
+
+function switchScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
 
   document.getElementById("sendBtn").addEventListener("click", sendMessage);
   document.getElementById("resetBtn").addEventListener("click", () => {
