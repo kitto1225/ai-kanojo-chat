@@ -16,24 +16,17 @@ const characters = [
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
-  if (!localStorage.getItem("userName")) {
-    switchScreen("userNameScreen");
-  } else {
-    userName = localStorage.getItem("userName");
-    switchScreen("homeScreen");
+  const nameInput = document.getElementById("userNameInput");
+  if (localStorage.getItem("userName")) {
+    nameInput.value = userName;
   }
 
   document.getElementById("saveUserNameBtn").addEventListener("click", () => {
-    const name = document.getElementById("userNameInput").value.trim();
+    const name = nameInput.value.trim();
     if (name) {
       userName = name;
       localStorage.setItem("userName", name);
-      switchScreen("homeScreen");
     }
-  });
-
-  document.getElementById("changeNameBtn").addEventListener("click", () => {
-    switchScreen("userNameScreen");
   });
 
   const list = document.getElementById("characterList");
@@ -58,6 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("chatLog").innerHTML = "";
     updateLoveLevelDisplay();
   });
+
   document.getElementById("backBtn").addEventListener("click", () => {
     switchScreen("homeScreen");
   });
@@ -186,5 +180,3 @@ function loadChatLog() {
     addMessage(entry.content, entry.role);
   });
 }
-
-
