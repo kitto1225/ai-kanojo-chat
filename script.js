@@ -17,7 +17,6 @@ const characters = [
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 最初に表示する画面
   if (!localStorage.getItem("userName")) {
     switchScreen("userNameScreen");
   } else {
@@ -25,7 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
     switchScreen("homeScreen");
   }
 
-  // 名前登録
   document.getElementById("saveUserNameBtn").addEventListener("click", () => {
     const name = document.getElementById("userNameInput").value.trim();
     if (name) {
@@ -35,12 +33,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 名前変更
   document.getElementById("changeNameBtn").addEventListener("click", () => {
     switchScreen("userNameScreen");
   });
 
-  // キャラ一覧作成
   const list = document.getElementById("characterList");
   characters.forEach(c => {
     const card = document.createElement("div");
@@ -55,25 +51,6 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     list.appendChild(card);
   });
-
-  document.getElementById("sendBtn").addEventListener("click", sendMessage);
-  document.getElementById("resetBtn").addEventListener("click", () => {
-    localStorage.removeItem(`log_${selectedCharacter}`);
-    localStorage.removeItem(`love_${selectedCharacter}`);
-    document.getElementById("chatLog").innerHTML = "";
-    updateLoveLevelDisplay();
-  });
-
-  document.getElementById("backBtn").addEventListener("click", () => {
-    switchScreen("homeScreen");
-  });
-});
-
-function switchScreen(id) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-}
-
 
   document.getElementById("sendBtn").addEventListener("click", sendMessage);
   document.getElementById("resetBtn").addEventListener("click", () => {
@@ -210,3 +187,4 @@ function loadChatLog() {
     addMessage(entry.content, entry.role);
   });
 }
+
