@@ -58,8 +58,7 @@ function setLoveLevel(value) {
 
 function updateLoveLevelDisplay() {
   const level = getLoveLevel();
-  const el = document.getElementById("loveLevelDisplay");
-  if (el) el.innerText = `💗 親密度：${level}`;
+  document.getElementById("loveLevelDisplay").innerText = `💗 親密度：${level}`;
 }
 
 function getPrompt() {
@@ -77,12 +76,6 @@ function getPrompt() {
     return `【距離感あり】${char.name}として話してください。${char.prompt}`;
   }
 }
-}
-
-function getImageName() {
-  const char = characters.find(c => c.name === selectedCharacter);
-  return char ? char.img : "default.png";
-}
 
 function addMessage(text, sender) {
   const chatLog = document.getElementById("chatLog");
@@ -93,7 +86,8 @@ function addMessage(text, sender) {
 
   if (sender === "ai") {
     const img = document.createElement("img");
-    img.src = `./icons/${getImageName()}`;
+    const char = characters.find(c => c.name === selectedCharacter);
+    img.src = `./icons/${char.img}`;
     img.alt = selectedCharacter;
     img.style.width = "40px";
     img.style.height = "40px";
@@ -110,8 +104,7 @@ function addMessage(text, sender) {
   wrapper.appendChild(msg);
   chatLog.appendChild(wrapper);
   chatLog.scrollTop = chatLog.scrollHeight;
-
-  saveLog(selectedCharacter, { role: sender, content: text, time: new Date().toLocaleString() });
+  saveLog({ role: sender, content: text, time: new Date().toLocaleString() });
 }
 
 async function sendMessage() {
@@ -157,8 +150,8 @@ async function sendMessage() {
   }
 }
 
-function saveLog(character, entry) {
-  const key = `log_${character}`;
+function saveLog(entry) {
+  const key = `log_${selectedCharacter}`;
   const log = JSON.parse(localStorage.getItem(key)) || [];
   log.push(entry);
   localStorage.setItem(key, JSON.stringify(log));
@@ -172,7 +165,6 @@ function loadChatLog() {
   log.forEach(entry => {
     addMessage(entry.content, entry.role);
   });
-  updateLoveLevelDisplay();
 }
 
 function downloadLog() {
