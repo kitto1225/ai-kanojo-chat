@@ -24,7 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
       selectedCharacter = c.name;
       document.getElementById("chatTitle").innerText = `${selectedCharacter}とチャット中💕`;
       loadChatLog();
-      updateLoveLevelDisplay();
       switchScreen("chatScreen");
     };
     list.appendChild(card);
@@ -33,9 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("sendBtn").addEventListener("click", sendMessage);
   document.getElementById("resetBtn").addEventListener("click", () => {
     localStorage.removeItem(`log_${selectedCharacter}`);
-    localStorage.removeItem(`love_${selectedCharacter}`);
     document.getElementById("chatLog").innerHTML = "";
-    updateLoveLevelDisplay();
   });
   document.getElementById("backBtn").addEventListener("click", () => {
     switchScreen("homeScreen");
@@ -45,19 +42,6 @@ document.addEventListener("DOMContentLoaded", () => {
 function switchScreen(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
-}
-
-function getLoveLevel(character) {
-  return parseInt(localStorage.getItem(`love_${character}`)) || 0;
-}
-
-function setLoveLevel(character, value) {
-  localStorage.setItem(`love_${character}`, value);
-}
-
-function updateLoveLevelDisplay() {
-  const level = getLoveLevel(selectedCharacter);
-  document.getElementById("loveLevelDisplay").innerText = `💗 親密度：${level}`;
 }
 
 function getPrompt() {
@@ -99,10 +83,6 @@ async function sendMessage() {
   if (!userMessage) return;
   input.value = "";
   addMessage(`${selectedCharacter}：${userMessage}`, "user");
-
-  const love = getLoveLevel(selectedCharacter);
-  setLoveLevel(selectedCharacter, love + 1);
-  updateLoveLevelDisplay();
 
   try {
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
