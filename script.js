@@ -1,4 +1,4 @@
-const apiKey = "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";
+const apiKey = "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";
 
 let selectedCharacter = ""; // 現在選択中のキャラ
 
