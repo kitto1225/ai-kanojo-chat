@@ -4,30 +4,71 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI彼女チャット</title>
+
+  <!-- ✅ PWA対応 -->
+  <link rel="manifest" href="manifest.json" />
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js').then(reg => {
+          console.log('ServiceWorker registered: ', reg);
+        }).catch(err => {
+          console.log('ServiceWorker registration failed: ', err);
+        });
+      });
+    }
+  </script>
+
+  <script defer src="script.js"></script>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- ① ホーム画面（キャラ＋名前入力） -->
-  <div class="screen active" id="homeScreen">
-    <h2>名前を入力して彼女を選んでね💕</h2>
-    <input type="text" id="userNameInput" placeholder="例：ゆうき" />
-    <button id="saveUserNameBtn">名前を保存</button>
-    <div id="characterList" class="character-list"></div>
+
+  <!-- 🏠 ホーム画面 -->
+  <div id="homeScreen" class="screen active">
+    <h1>AI彼女を選んでね💘</h1>
+    <div id="characterList"></div>
   </div>
 
-  <!-- ② チャット画面 -->
-  <div class="screen" id="chatScreen">
-    <h2 id="chatTitle">チャット画面</h2>
+  <!-- 💬 チャット画面 -->
+  <div id="chatScreen" class="screen">
+    <h2 id="chatTitle">チャット</h2>
     <div id="loveLevelDisplay">💗 親密度：0</div>
-    <div id="chatLog" class="chat-log"></div>
-    <input type="text" id="userInput" placeholder="メッセージを入力..." />
-    <div class="chat-buttons">
+    <div id="chatLog"></div>
+    <button id="downloadBtn" onclick="downloadLog()">このキャラのログを保存</button>
+    <button id="resetBtn">ログをリセット</button>
+    <div id="inputArea">
+      <input type="text" id="userInput" placeholder="話しかけてみてね…" />
       <button id="sendBtn">送信</button>
-      <button id="resetBtn">リセット</button>
-      <button id="backBtn">戻る</button>
     </div>
+    <button id="backBtn" style="margin-top: 10px;">戻る</button>
   </div>
 
-  <script src="script.js"></script>
+  <!-- ✅ service-worker.js をこの中で定義（テスト用） -->
+  <script type="text/javascript">
+    // テスト用：動的に service-worker.js を作る（実際は別ファイル推奨）
+    const swBlob = new Blob([
+      `self.addEventListener('install', event => {
+         console.log('[ServiceWorker] Install');
+         self.skipWaiting();
+       });
+
+       self.addEventListener('activate', event => {
+         console.log('[ServiceWorker] Activate');
+       });
+
+       self.addEventListener('fetch', event => {
+         event.respondWith(fetch(event.request));
+       });`
+    ], { type: 'application/javascript' });
+
+    const swUrl = URL.createObjectURL(swBlob);
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register(swUrl).then(() => {
+        console.log('✅ インラインSW登録完了');
+      }).catch(console.error);
+    }
+  </script>
+
 </body>
 </html>
