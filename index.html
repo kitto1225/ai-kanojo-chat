@@ -2,29 +2,26 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI彼女チャット</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="icon.png" />
 </head>
 <body>
-
-  <!-- 🌸 ① ユーザー名入力画面 -->
+  <!-- ① 名前入力画面 -->
   <div class="screen active" id="userNameScreen">
     <h2>あなたの名前を教えてね💕</h2>
     <input type="text" id="userNameInput" placeholder="例：ゆうき" />
     <button id="saveUserNameBtn">はじめる</button>
   </div>
 
-  <!-- 💖 ② ホーム画面（キャラ選択） -->
+  <!-- ② ホーム画面（キャラ選択） -->
   <div class="screen" id="homeScreen">
     <h2>AI彼女を選んでね💕</h2>
     <div id="characterList" class="character-list"></div>
     <button id="changeNameBtn">名前を変更する</button>
   </div>
 
-  <!-- 💬 ③ チャット画面 -->
+  <!-- ③ チャット画面 -->
   <div class="screen" id="chatScreen">
     <h2 id="chatTitle">チャット画面</h2>
     <div id="loveLevelDisplay">💗 親密度：0</div>
