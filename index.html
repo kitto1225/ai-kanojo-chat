@@ -4,14 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI彼女チャット</title>
-
   <link rel="manifest" href="manifest.json" />
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js');
     }
   </script>
-
   <script defer src="script.js"></script>
   <style>
     body {
@@ -36,6 +34,26 @@
 
     .active {
       display: flex;
+    }
+
+    #startImage {
+      width: 90%;
+      max-width: 360px;
+      margin-top: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    #startBtn {
+      margin-top: auto;
+      margin-bottom: 40px;
+      padding: 14px 24px;
+      font-size: 18px;
+      background-color: #e91e63;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
     }
 
     .character-card {
@@ -139,8 +157,14 @@
 </head>
 <body>
 
+  <!-- 🎀 スタート画面 -->
+  <div id="startScreen" class="screen active">
+    <img id="startImage" src="./icons/girls_all.png" alt="AI彼女全員集合" />
+    <button id="startBtn">はじめる</button>
+  </div>
+
   <!-- 🏠 ホーム画面 -->
-  <div id="homeScreen" class="screen active">
+  <div id="homeScreen" class="screen">
     <h1>AI彼女を選んでね💘</h1>
     <div id="characterList"></div>
   </div>
