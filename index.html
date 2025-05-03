@@ -10,6 +10,7 @@
       navigator.serviceWorker.register('service-worker.js');
     }
   </script>
+  <script defer src="script.js"></script>
   <style>
     :root {
       --user-color: #dcf8c6;
@@ -216,7 +217,7 @@
     <input type="text" id="userInput" placeholder="話しかけてみてね…" />
     <button id="sendBtn">送信</button>
   </div>
-  <button id="downloadBtn">このキャラのログを保存</button>
+  <button id="downloadBtn" onclick="downloadLog()">このキャラのログを保存</button>
   <button id="resetBtn">ログをリセット</button>
   <button id="backBtn" style="margin-bottom: 16px;">戻る</button>
 </div>
@@ -231,9 +232,5 @@
 <!-- 背景ぼかし -->
 <div id="popupBackground" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.3); z-index:999;"></div>
 
-<!-- 📜 JavaScript読み込み（必須） -->
-<script defer src="script.js"></script>
-
 </body>
 </html>
-
