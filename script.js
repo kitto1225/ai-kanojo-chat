@@ -7,7 +7,6 @@ let lastInteractionTime = 0;
 let lastStage = "";
 let loverSinceDate = null;
 
-
 const characters = [
   { name: "橘 ひなた", img: "hinata.png", birthday: "4月10日", color: "#FFB6C1", prompt: "あなたはツンデレ系彼女「橘ひなた」。強気で素直じゃないけど、本当は大好き。セリフのみ、感情は絵文字（😤💦💕）、口調は「〜でしょ！」「べ、別に…！」。返答は一言〜4行程度で簡潔にしてください。" },
   { name: "小日向 こころ", img: "kokoro.png", birthday: "6月6日", color: "#FFD700", prompt: "あなたは妹系彼女「小日向こころ」。甘えん坊で元気いっぱい。セリフのみ、絵文字（🥺💕✨）、語尾は「〜だよ〜」「〜なの！」。返答は一言〜4行程度で簡潔にしてください。" },
@@ -40,110 +39,16 @@ const loverStages = [
   { name: "バカップル期", days: 90 },
   { name: "夫婦感覚期", days: 180 }
 ];
-//==================== キャラクター表示関数 ====================
-function renderCharacterList() {
-  const list = document.getElementById("characterList");
-  list.innerHTML = "";
-  characters.forEach(c => {
-    const card = document.createElement("div");
-    card.className = "character-card";
-    card.style.backgroundColor = c.color;
-    card.innerHTML = `
-      <img src="./icons/${c.img}" alt="${c.name}">
-      <div>
-        <strong>${c.name}</strong><br>
-        🎂 ${c.birthday}
-        <span class="infoBtn" data-name="${c.name}" style="margin-left:10px;cursor:pointer;">ℹ️</span>
-      </div>
-    `;
-    card.onclick = () => {
-      selectedCharacter = c.name;
-      switchScreen("chatScreen");
-      updateLoveDisplay();
-      sendWeekdayMessage();  // 曜日メッセージも即送信
-      checkBirthdayEvent();  // 誕生日演出も即確認
-    };
-    list.appendChild(card);
-  });
-
-  setTimeout(() => {
-    document.querySelectorAll(".infoBtn").forEach(btn => {
-      btn.addEventListener("click", e => {
-        e.stopPropagation();
-        const name = btn.dataset.name;
-        selectedCharacter = name;
-        showProfilePopup(name);
-      });
-    });
-  }, 0);
+//==================== 関係ステージ判定 ====================
+function getRelationshipStage(love) {
+  if (love >= 100) return "恋人";
+  if (love >= 90) return "恋人未満";
+  if (love >= 60) return "いい感じ";
+  if (love >= 30) return "友達";
+  return "知り合い";
 }
 
-//==================== プロフィールポップアップ ====================
-function showProfilePopup(name) {
-  const profileContent = document.getElementById("profileContent");
-  const char = characters.find(c => c.name === name);
-  const profile = profiles[name];
-
-  profileContent.innerHTML = `
-    <h2 style="color: ${char.color};">${name}</h2>
-    <p>🎂 <strong>誕生日：</strong>${char.birthday}</p>
-    <p>💖 <strong>性格：</strong>${profile.性格}</p>
-    <p>🎯 <strong>趣味：</strong>${profile.趣味}</p>
-    <p>🍰 <strong>好きなもの：</strong>${profile.好きなもの}</p>
-    <p>🔍 <strong>小ネタ：</strong>${profile.小ネタ}</p>
-  `;
-  document.getElementById("popupBackground").style.display = "block";
-  document.getElementById("profilePopup").style.display = "block";
-}
-
-//==================== プロフィール閉じる ====================
-function closeProfilePopup() {
-  document.getElementById("popupBackground").style.display = "none";
-  document.getElementById("profilePopup").style.display = "none";
-}
-//==================== スタンプボタン生成 ====================
-function createStampButtons() {
-  const inputArea = document.getElementById("inputArea");
-  const stamps = ["💖", "😘", "😍"];
-  const stampContainer = document.createElement("div");
-  stampContainer.style.marginTop = "8px";
-  stamps.forEach(stamp => {
-    const btn = document.createElement("button");
-    btn.innerText = stamp;
-    btn.style.marginRight = "5px";
-    btn.style.fontSize = "20px";
-    btn.style.padding = "6px 10px";
-    btn.style.border = "none";
-    btn.style.borderRadius = "6px";
-    btn.style.cursor = "pointer";
-    btn.onclick = () => {
-      document.getElementById("userInput").value = stamp;
-      sendMessage();
-    };
-    stampContainer.appendChild(btn);
-  });
-  inputArea.parentNode.insertBefore(stampContainer, inputArea.nextSibling);
-}
-
-//==================== 曜日ごとの応援メッセージ ====================
-function sendWeekdayMessage() {
-  const days = ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"];
-  const today = new Date();
-  const weekday = days[today.getDay()];
-  const messages = {
-    "月曜日": "今週もがんばろうね💪💕",
-    "火曜日": "ちょっと疲れてない？😌ゆっくりしてね！",
-    "水曜日": "週の真ん中！一緒に乗り越えよ～✨",
-    "木曜日": "あと少しで週末だよ☺️🎶",
-    "金曜日": "花金だ～！テンションあがるね😍",
-    "土曜日": "休日だね💕たくさん甘えさせて？",
-    "日曜日": "明日からまたがんばろう💖ゆっくり休んでね！"
-  };
-  const msg = messages[weekday] || "今日も元気にいこう～！";
-  addMessage(`（${weekday}メッセージ）${msg}`, "ai");
-}
-
-//==================== 恋人ステージ判定 ====================
+//==================== 恋人ステージ進化 ====================
 function getLoverStage() {
   if (!loverSinceDate) return null;
   const daysPassed = Math.floor((Date.now() - new Date(loverSinceDate)) / (1000 * 60 * 60 * 24));
@@ -155,23 +60,7 @@ function getLoverStage() {
   });
   return `${currentStage}（付き合って${daysPassed}日目💑）`;
 }
-
-//==================== 恋人突入演出 ====================
-function triggerLoverEffect() {
-  const heart = document.createElement("div");
-  heart.innerText = "💞";
-  heart.style.position = "fixed";
-  heart.style.left = `${Math.random() * 100}%`;
-  heart.style.top = "-30px";
-  heart.style.fontSize = "24px";
-  heart.style.animation = "fall 3s linear infinite";
-  document.body.appendChild(heart);
-
-  setTimeout(() => document.body.removeChild(heart), 3000);
-}
-
-// 💕 ハートふわふわCSSアニメを追加（HTML/CSS側で @keyframes 作成必要）
-//==================== メッセージ送信処理（恋人・進化対応） ====================
+//==================== メッセージ送信 ====================
 async function sendMessage() {
   console.log("✅ sendMessage発火確認");
   const input = document.getElementById("userInput");
@@ -185,22 +74,22 @@ async function sendMessage() {
   saveMemory(selectedCharacter, userMessage);
 
   let love = getLoveLevel(selectedCharacter);
-  love += 5;  // 💡 適当に増加、ここは好きに調整OK
+  love += 5;  // 💡 親密度増加
   setLoveLevel(selectedCharacter, love);
   updateLoveDisplay();
 
-  // 💕 恋人進化判定
-  if (love >= 90 && !loverSinceDate) {
+  // 💕 恋人フラグ：親密度100で成立
+  if (love >= 100 && !loverSinceDate) {
     loverSinceDate = new Date().toISOString();
     localStorage.setItem(`loverSince_${selectedCharacter}`, loverSinceDate);
-    addMessage("🌟 これからは恋人同士だね💖 末永くよろしくね！", "ai");
+    addMessage("🌟 やっと恋人になれたね💖 これからよろしくね！", "ai");
     triggerLoverEffect();
-    document.body.style.background = "#ffe4e1";  // ピンク背景に変更
+    document.body.style.background = "#ffe4e1";  // ピンク背景
   }
 
-  const stage = getLoverStage();
+  const stage = loverSinceDate ? getLoverStage() : getRelationshipStage(love);
   if (stage) {
-    console.log("💑 恋人ステージ:", stage);
+    console.log("💑 関係ステージ:", stage);
     addMessage(`（今の関係：${stage}）`, "ai");
   }
 
@@ -238,34 +127,80 @@ async function sendMessage() {
     addMessage("エラーが発生しちゃった💦", "ai");
   }
 }
-
-//==================== 誕生日イベント補完 ====================
-function checkBirthdayEvent() {
-  const today = new Date();
-  const todayStr = `${today.getMonth() + 1}月${today.getDate()}日`;
-  const char = characters.find(c => c.name === selectedCharacter);
-  if (char && char.birthday === todayStr) {
-    addMessage("🎂 今日は私の誕生日なの🎉 一緒に過ごせてうれしいな💖", "ai");
-    // 🎉 ここでさらに演出も追加できる（例：背景一時変更）
-    document.body.style.background = "#fff0f5";  // 誕生日カラー
-    setTimeout(() => {
-      document.body.style.background = "";  // 元に戻す
-    }, 5000);
-  }
+//==================== プロフィール閉じる ====================
+function closeProfilePopup() {
+  document.getElementById("popupBackground").style.display = "none";
+  document.getElementById("profilePopup").style.display = "none";
 }
 
-//==================== イベント登録（スタンプ生成も） ====================
+//==================== 親密度の取得＆保存 ====================
+function getLoveLevel(character) {
+  return parseInt(localStorage.getItem(`love_${character}`)) || 0;
+}
+function setLoveLevel(character, level) {
+  localStorage.setItem(`love_${character}`, level);
+}
+function saveMemory(character, message) {
+  const key = `memory_${character}`;
+  const memory = JSON.parse(localStorage.getItem(key)) || [];
+  memory.push(message);
+  if (memory.length > 10) memory.shift();  // 10件まで保存
+  localStorage.setItem(key, JSON.stringify(memory));
+}
+function loadMemory(character) {
+  return JSON.parse(localStorage.getItem(`memory_${character}`)) || [];
+}
+
+//==================== ハート演出 ====================
+function triggerLoverEffect() {
+  const heart = document.createElement("div");
+  heart.innerText = "💞";
+  heart.style.position = "fixed";
+  heart.style.left = `${Math.random() * 100}%`;
+  heart.style.top = "-30px";
+  heart.style.fontSize = "24px";
+  heart.style.animation = "fall 3s linear infinite";
+  document.body.appendChild(heart);
+  setTimeout(() => document.body.removeChild(heart), 3000);
+}
+
+//==================== スタンプボタン生成 ====================
+function createStampButtons() {
+  const inputArea = document.getElementById("inputArea");
+  if (document.getElementById("stampContainer")) return;  // 2重生成防止
+  const stamps = ["💖", "😘", "😍"];
+  const stampContainer = document.createElement("div");
+  stampContainer.id = "stampContainer";
+  stampContainer.style.marginTop = "8px";
+  stamps.forEach(stamp => {
+    const btn = document.createElement("button");
+    btn.innerText = stamp;
+    btn.style.marginRight = "5px";
+    btn.style.fontSize = "20px";
+    btn.style.padding = "6px 10px";
+    btn.style.border = "none";
+    btn.style.borderRadius = "6px";
+    btn.style.cursor = "pointer";
+    btn.onclick = () => {
+      document.getElementById("userInput").value = stamp;
+      sendMessage();
+    };
+    stampContainer.appendChild(btn);
+  });
+  inputArea.parentNode.insertBefore(stampContainer, inputArea.nextSibling);
+}
+
+//==================== イベント登録 ====================
 window.addEventListener("DOMContentLoaded", () => {
-  console.log("✅ DOMContentLoadedが発火しました");
+  console.log("✅ DOMContentLoaded発火");
   const $ = id => document.getElementById(id);
-  console.log("✅ startBtn取得確認:", $("startBtn"));
 
   if ($("startBtn")) {
     $("startBtn").onclick = () => {
-      console.log("✅ startBtnクリックされました");
+      console.log("✅ startBtnクリック");
       renderCharacterList();
       switchScreen("homeScreen");
-      createStampButtons();  // 💖 スタンプもここで生成
+      createStampButtons();  // スタンプもここで生成
     };
   }
 
@@ -277,16 +212,15 @@ window.addEventListener("DOMContentLoaded", () => {
     $("chatLog").innerHTML = "";
     loverSinceDate = null;
     updateLoveDisplay();
-    document.body.style.background = "";  // 恋人モード解除
+    document.body.style.background = "";  // ピンク背景リセット
   };
 
   $("backBtn").onclick = () => switchScreen("homeScreen");
-
   $("closeProfileBtn").onclick = closeProfilePopup;
   $("startChatBtn").onclick = () => {
     closeProfilePopup();
     switchScreen("chatScreen");
     updateLoveDisplay();
-    createStampButtons();  // 再生成（戻ったとき用）
+    createStampButtons();  // 再生成
   };
 });
