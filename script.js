@@ -185,3 +185,70 @@ function getLoveLevel(character) {
 function setLoveLevel(character, level) {
   localStorage.setItem(`love_${character}`, level);
 }
+//==================== チャットメッセージ表示 ====================
+function addMessage(text, sender) {
+  const log = document.getElementById("chatLog");
+  const wrapper = document.createElement("div");
+  wrapper.className = "message-wrapper";
+  wrapper.style.display = "flex";
+  wrapper.style.alignItems = "flex-start";
+
+  if (sender === "ai") {
+    const img = document.createElement("img");
+    const char = characters.find(c => c.name === selectedCharacter);
+    img.src = `./icons/${char.img}`;
+    img.alt = selectedCharacter;
+    img.style.width = "40px";
+    img.style.height = "40px";
+    img.style.borderRadius = "50%";
+    img.style.marginRight = "8px";
+    wrapper.appendChild(img);
+  } else {
+    wrapper.style.justifyContent = "flex-end";
+  }
+
+  const msg = document.createElement("div");
+  msg.className = `message ${sender}`;
+  msg.innerText = text;
+  wrapper.appendChild(msg);
+  log.appendChild(wrapper);
+  log.scrollTop = log.scrollHeight;
+}
+//==================== メッセージ送信処理 ====================
+async function sendMessage() {
+  console.log("✅ sendMessage発火確認");
+  const input = document.getElementById("userInput");
+  const userMessage = input.value.trim();
+  console.log("【DEBUG】入力:", userMessage);
+  console.log("【DEBUG】選択キャラ:", selectedCharacter);
+
+  if (!userMessage) return;
+  input.value = "";
+  addMessage(userMessage, "user");
+
+  try {
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "shisa-ai/shisa-v2-llama3.3-70b:free",
+        messages: [
+          { role: "system", content: characters.find(c => c.name === selectedCharacter).prompt },
+          { role: "user", content: userMessage }
+        ],
+        temperature: 0.9,
+        max_tokens: 100
+      })
+    });
+    const data = await res.json();
+    console.log("【DEBUG】API応答:", data);
+    const reply = data.choices?.[0]?.message?.content?.trim() || "……。";
+    addMessage(reply, "ai");
+  } catch (e) {
+    console.error("エラー:", e);
+    addMessage("エラーが発生しちゃった💦", "ai");
+  }
+}
