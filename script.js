@@ -157,8 +157,8 @@ async function sendMessage() {
   console.log("✅ sendMessage発火確認");  // ← 追加
   const input = document.getElementById("userInput");
   const userMessage = input.value.trim();
-  console.log("【DEBUG】入力:", userMessage);
-  console.log("【DEBUG】選択キャラ:", selectedCharacter);
+  console.log("【DEBUG】入力:", userMessage);  // ← 既存
+  console.log("【DEBUG】選択キャラ:", selectedCharacter);  // ← 既存
 
   if (!userMessage) return;
   if (!selectedCharacter) {
