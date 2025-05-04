@@ -82,8 +82,6 @@ const profiles = {
   }
 };
 
-const datePlaces = ["映画館🎬", "動物園🦁", "水族館🐬", "カフェ☕", "遊園地🎡", "公園🌳", "温泉♨️"];
-const dateSuccessMessages = ["今日はすっごく楽しかったね💖また一緒に行こうねっ！", "あなたと一緒にいるだけで、特別な1日になったよ💕", "ずっとこのまま一緒にいたいな…なんて、えへへ🥰", "次はどこ行こうか？もっともっと、思い出作ろうね🌟", "やっぱりあなたといると、安心するんだよね😌💗"];
 //==================== 💗 親密度（関係性）ロジック ====================//
 function getRelationshipStage(love) {
   if (love >= 90) return "恋人";
@@ -102,132 +100,26 @@ function checkRelationshipUpgrade() {
     lastStage = stage;
   }
 }
-//==================== 📝 プロンプト生成 ====================//
-function getPrompt() {
-  const char = characters.find(c => c.name === selectedCharacter);
-  const memory = loadMemory(selectedCharacter).map(m => `「${m}」`).join("\n");
-  const love = getLoveLevel(selectedCharacter);
-  const stage = getRelationshipStage(love);
 
-  let extraTone = "";
-  switch (stage) {
-    case "恋人": extraTone = "あなたは彼氏のことが大好きで、素直に甘えて接してください。"; break;
-    case "恋人未満": extraTone = "彼に好意を持っていて、照れながら話しています。"; break;
-    case "いい感じ": extraTone = "最近距離が縮まってきて、嬉しそうに接しています。"; break;
-    case "友達": extraTone = "親しみを込めてフレンドリーに会話してください。"; break;
-    case "知り合い": extraTone = "まだ少し距離のある丁寧な会話をしてください。"; break;
-    default: extraTone = "初対面の相手に礼儀正しく丁寧に話してください。";
-  }
-
-  return `${char.prompt}\n【現在の関係性：${stage}】\n${extraTone}\n以前の会話で印象的だったセリフ：\n${memory}`;
-}
-
-//==================== 💬 チャットログ保存 ====================//
+//==================== 💬 チャットログ保存・読み込み ====================//
 function saveChatLog(character, text, sender) {
   const key = `chatLog_${character}`;
   const log = JSON.parse(localStorage.getItem(key)) || [];
   log.push({ text, sender });
   localStorage.setItem(key, JSON.stringify(log));
+  console.log("✅ チャット履歴保存:", key, log);
 }
 
-//==================== 💬 チャットログ読み込み ====================//
 function loadChatLog(character) {
   const log = JSON.parse(localStorage.getItem(`chatLog_${character}`)) || [];
   const chatLog = document.getElementById("chatLog");
   chatLog.innerHTML = "";
-  log.forEach(entry => {
-    const wrapper = document.createElement("div");
-    wrapper.className = "message-wrapper";
-    wrapper.style.display = "flex";
-    wrapper.style.alignItems = "flex-start";
-
-    if (entry.sender === "ai") {
-      const img = document.createElement("img");
-      const char = characters.find(c => c.name === selectedCharacter);
-      img.src = `./icons/${char.img}`;
-      img.alt = selectedCharacter;
-      img.style.width = "40px";
-      img.style.height = "40px";
-      img.style.borderRadius = "50%";
-      img.style.marginRight = "8px";
-      wrapper.appendChild(img);
-    } else {
-      wrapper.style.justifyContent = "flex-end";
-    }
-
-    const msg = document.createElement("div");
-    msg.className = `message ${entry.sender}`;
-    msg.innerText = entry.text;
-    wrapper.appendChild(msg);
-    chatLog.appendChild(wrapper);
-  });
-  chatLog.scrollTop = chatLog.scrollHeight;
+  console.log("✅ チャット履歴読み込み:", log);
+  log.forEach(entry => addMessage(entry.text, entry.sender, false)); // 保存しないモード
 }
 
-//==================== 📤 メッセージ送信＆API応答 ====================//
-async function sendMessage() {
-  const input = document.getElementById("userInput");
-  const userMessage = input.value.trim();
-  if (!userMessage) return;
-
-  // ✅ キャラ未選択なら警告
-  if (!selectedCharacter) {
-    alert("キャラクターを選択してください！");
-    return;
-  }
-
-  input.value = "";
-  addMessage(userMessage, "user");
-  saveMemory(selectedCharacter, userMessage);
-  lastInteractionTime = Date.now();
-
-  if (handleDateReply(userMessage)) return;
-
-  checkNotification();
-  checkBirthdayEvent();
-
-  let love = getLoveLevel(selectedCharacter);
-  love += adjustLoveLevelByMessage(userMessage);
-  setLoveLevel(selectedCharacter, love);
-  updateLoveDisplay();
-  checkRelationshipUpgrade();
-
-  const memory = loadMemory(selectedCharacter).map(m => ({ role: "user", content: m }));
-  const messages = [
-    { role: "system", content: getPrompt() },
-    ...memory,
-    { role: "user", content: userMessage }
-  ];
-
-  console.log("送信内容確認:", messages); // デバッグ用
-
-  try {
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: "shisa-ai/shisa-v2-llama3.3-70b:free",
-        messages,
-        temperature: 0.9,
-        top_p: 0.95,
-        max_tokens: 100
-      })
-    });
-    const data = await res.json();
-    const reply = data.choices?.[0]?.message?.content?.trim() || "……。";
-    addMessage(reply, "ai");
-    saveMemory(selectedCharacter, reply);
-    maybeStartDateEvent();
-  } catch (e) {
-    console.error(e);
-    addMessage("エラーが発生しちゃったよ…" + e.message, "ai");
-  }
-}
-//==================== 💬 メッセージ表示（保存付き） ====================//
-function addMessage(text, sender) {
+//==================== 💬 メッセージ表示 ====================//
+function addMessage(text, sender, save = true) {
   const log = document.getElementById("chatLog");
   const wrapper = document.createElement("div");
   wrapper.className = "message-wrapper";
@@ -255,47 +147,125 @@ function addMessage(text, sender) {
   log.appendChild(wrapper);
   log.scrollTop = log.scrollHeight;
 
-  // 👇 履歴も保存
-  saveChatLog(selectedCharacter, text, sender);
+  if (save) {
+    saveChatLog(selectedCharacter, text, sender);
+  }
 }
 
-//==================== 📋 キャラクターリスト描画 ====================//
-function renderCharacterList() {
-  const list = document.getElementById("characterList");
-  list.innerHTML = "";
-  characters.forEach(c => {
-    const card = document.createElement("div");
-    card.className = "character-card";
-    card.style.backgroundColor = c.color;
-    card.innerHTML = `
-      <img src="./icons/${c.img}" alt="${c.name}">
-      <div>
-        <strong>${c.name}</strong><br>
-        🎂 ${c.birthday}
-        <span class="infoBtn" data-name="${c.name}" style="margin-left:10px;cursor:pointer;">ℹ️</span>
-      </div>
-    `;
-    card.onclick = () => {
-      selectedCharacter = c.name;
-      switchScreen("chatScreen");
-      updateLoveDisplay();
-      loadChatLog(selectedCharacter); // ✅ キャラ切り替え時にチャット履歴を読み込む
-    };
-    list.appendChild(card);
-  });
+//==================== 📤 メッセージ送信＆API応答 ====================//
+async function sendMessage() {
+  const input = document.getElementById("userInput");
+  const userMessage = input.value.trim();
+  console.log("【DEBUG】入力:", userMessage);
+  console.log("【DEBUG】選択キャラ:", selectedCharacter);
 
-  setTimeout(() => {
-    document.querySelectorAll(".infoBtn").forEach(btn => {
-      btn.addEventListener("click", e => {
-        e.stopPropagation();
-        const name = btn.dataset.name;
-        selectedCharacter = name;
-        showProfilePopup(name);
-      });
+  if (!userMessage) return;
+  if (!selectedCharacter) {
+    alert("キャラクターを選択してください！");
+    return;
+  }
+
+  input.value = "";
+  addMessage(userMessage, "user");
+  saveMemory(selectedCharacter, userMessage);
+  lastInteractionTime = Date.now();
+
+  let love = getLoveLevel(selectedCharacter);
+  love += adjustLoveLevelByMessage(userMessage);
+  setLoveLevel(selectedCharacter, love);
+  updateLoveDisplay();
+  checkRelationshipUpgrade();
+
+  const memory = loadMemory(selectedCharacter).map(m => ({ role: "user", content: m }));
+  const messages = [
+    { role: "system", content: getPrompt() },
+    ...memory,
+    { role: "user", content: userMessage }
+  ];
+
+  console.log("【DEBUG】送信内容:", messages);
+
+  try {
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "shisa-ai/shisa-v2-llama3.3-70b:free",
+        messages,
+        temperature: 0.9,
+        top_p: 0.95,
+        max_tokens: 100
+      })
     });
-  }, 0);
+    const data = await res.json();
+    console.log("【DEBUG】API応答:", data);
+    const reply = data.choices?.[0]?.message?.content?.trim() || "……。";
+    addMessage(reply, "ai");
+    saveMemory(selectedCharacter, reply);
+  } catch (e) {
+    console.error("APIエラー:", e);
+    addMessage("エラーが発生しちゃったよ…" + e.message, "ai");
+  }
 }
-//==================== 👤 プロフィールポップアップ ====================//
+
+//==================== ✨ その他の必要関数 ====================//
+function getPrompt() {
+  const char = characters.find(c => c.name === selectedCharacter);
+  const memory = loadMemory(selectedCharacter).map(m => `「${m}」`).join("\n");
+  const love = getLoveLevel(selectedCharacter);
+  const stage = getRelationshipStage(love);
+
+  let extraTone = "";
+  switch (stage) {
+    case "恋人": extraTone = "あなたは彼氏のことが大好きで、素直に甘えて接してください。"; break;
+    case "恋人未満": extraTone = "彼に好意を持っていて、照れながら話しています。"; break;
+    case "いい感じ": extraTone = "最近距離が縮まってきて、嬉しそうに接しています。"; break;
+    case "友達": extraTone = "親しみを込めてフレンドリーに会話してください。"; break;
+    case "知り合い": extraTone = "まだ少し距離のある丁寧な会話をしてください。"; break;
+    default: extraTone = "初対面の相手に礼儀正しく丁寧に話してください。";
+  }
+
+  return `${char.prompt}\n【現在の関係性：${stage}】\n${extraTone}\n以前の会話で印象的だったセリフ：\n${memory}`;
+}
+
+function saveMemory(character, message) {
+  const key = `memory_${character}`;
+  const memory = JSON.parse(localStorage.getItem(key)) || [];
+  memory.push(message);
+  if (memory.length > 5) memory.shift();
+  localStorage.setItem(key, JSON.stringify(memory));
+}
+
+function loadMemory(character) {
+  return JSON.parse(localStorage.getItem(`memory_${character}`)) || [];
+}
+
+function getLoveLevel(character) {
+  return parseInt(localStorage.getItem(`love_${character}`)) || 0;
+}
+
+function setLoveLevel(character, level) {
+  localStorage.setItem(`love_${character}`, level);
+}
+
+function adjustLoveLevelByMessage(message) {
+  const positives = ["好き", "楽しい", "かわいい", "かっこいい", "素敵", "大好き", "愛してる"];
+  const negatives = ["嫌い", "疲れた", "ムカつく", "キモい", "最悪"];
+  let adjustment = 0;
+  positives.forEach(w => { if (message.includes(w)) adjustment += 2; });
+  negatives.forEach(w => { if (message.includes(w)) adjustment -= 3; });
+  return adjustment;
+}
+
+function updateLoveDisplay() {
+  const love = getLoveLevel(selectedCharacter);
+  document.getElementById("loveLevelDisplay").innerText = `💗 親密度：${love}`;
+  document.getElementById("chatTitle").innerText = `${selectedCharacter}とチャット中💕`;
+}
+
 function showProfilePopup(name) {
   const profileContent = document.getElementById("profileContent");
   const p = characters.find(c => c.name === name);
@@ -316,7 +286,6 @@ function closeProfilePopup() {
   document.getElementById("profilePopup").style.display = "none";
 }
 
-//==================== 🖥️ 画面切り替え ====================//
 function switchScreen(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
@@ -324,9 +293,12 @@ function switchScreen(id) {
 
 //==================== 🚀 アプリ起動処理 ====================//
 window.addEventListener("DOMContentLoaded", () => {
+  console.log("✅ DOMContentLoadedが発火しました");
   const $ = id => document.getElementById(id);
+  console.log("✅ startBtn取得確認:", $("startBtn"));
 
   $("startBtn").onclick = () => {
+    console.log("✅ startBtnクリックされました");
     renderCharacterList();
     switchScreen("homeScreen");
   };
@@ -338,7 +310,6 @@ window.addEventListener("DOMContentLoaded", () => {
       alert("キャラクターが選択されていません！");
       return;
     }
-    // ✅ 全データ削除（メモリ・親密度・ログ）
     localStorage.removeItem(`memory_${selectedCharacter}`);
     localStorage.removeItem(`love_${selectedCharacter}`);
     localStorage.removeItem(`chatLog_${selectedCharacter}`);
@@ -367,7 +338,7 @@ window.addEventListener("DOMContentLoaded", () => {
     closeProfilePopup();
     switchScreen("chatScreen");
     updateLoveDisplay();
-    loadChatLog(selectedCharacter); // ✅ プロフィールから来たときも履歴表示
+    loadChatLog(selectedCharacter);
   };
 
   $("closeProfileBtn").onclick = closeProfilePopup;
