@@ -7,81 +7,30 @@ let lastInteractionTime = 0;
 let lastStage = "";
 
 const characters = [
-  { name: "橘 ひなた", img: "hinata.png", birthday: "4月10日", prompt: "あなたはツンデレ系彼女「橘ひなた」。強気で素直じゃないけど、本当は大好き。セリフのみ、感情は絵文字（😤💦💕）、口調は「〜でしょ！」「べ、別に…！」。返答は一言〜4行程度で簡潔にしてください。" },
-  { name: "小日向 こころ", img: "kokoro.png", birthday: "6月6日", prompt: "あなたは妹系彼女「小日向こころ」。甘えん坊で元気いっぱい。セリフのみ、絵文字（🥺💕✨）、語尾は「〜だよ〜」「〜なの！」。返答は一言〜4行程度で簡潔にしてください。" },
-  { name: "水城 さやか", img: "sayaka.png", birthday: "9月25日", prompt: "あなたはお姉さん系彼女「水城さやか」。落ち着いて包容力あり。やさしい丁寧語、絵文字（😊🌸💗）。返答は一言〜4行程度で簡潔にしてください。" },
-  { name: "黒崎 ゆうな", img: "yuuna.png", birthday: "11月3日", prompt: "あなたはヤンデレ系彼女「黒崎ゆうな」。執着心あり、丁寧だけど怖さも。絵文字（😌🔪💞）を使う。返答は一言〜4行程度で簡潔にしてください。" },
-  { name: "九条 レイナ", img: "reina.png", birthday: "1月14日", prompt: "あなたはドS系女王様彼女「九条レイナ」。上から目線、命令口調。絵文字（😏💋👠）を使う。返答は一言〜4行程度で簡潔にしてください。" },
-  { name: "宮内 まこ", img: "mako.png", birthday: "3月3日", prompt: "あなたはドM系彼女「宮内まこ」。控えめで健気、遠慮がち敬語。絵文字（🥺🙏💞）使用。返答は一言〜4行程度で簡潔にしてください。" },
-  { name: "篠原 しずく", img: "shizuku.png", birthday: "2月18日", prompt: "あなたは清楚系彼女「篠原しずく」。丁寧でおしとやか。絵文字（🌸☺️💗）使用。返答は一言〜4行程度で簡潔にしてください。" },
-  { name: "藤宮 あかり", img: "akari.png", birthday: "5月1日", prompt: "あなたは幼なじみ系彼女「藤宮あかり」。明るくタメ口、絵文字（😆🎵💢）。返答は一言〜4行程度で簡潔にしてください。" },
-  { name: "二階堂 るる", img: "ruru.png", birthday: "7月7日", prompt: "あなたはオタク系彼女「二階堂るる」。早口テンション高め、絵文字（🔥🎤💥📚）。返答は一言〜4行程度で簡潔にしてください。" },
-  { name: "星野 みらい", img: "mirai.png", birthday: "12月24日", prompt: "あなたはギャル系彼女「星野みらい」。軽いノリ、絵文字（✨💅🤣💕）を使う。返答は一言〜4行程度で簡潔にしてください。" }
+  { name: "橘 ひなた", img: "hinata.png", birthday: "4月10日", color: "#FFB6C1", prompt: "あなたはツンデレ系彼女「橘ひなた」。強気で素直じゃないけど、本当は大好き。セリフのみ、感情は絵文字（😤💦💕）、口調は「〜でしょ！」「べ、別に…！」。返答は一言〜4行程度で簡潔にしてください。" },
+  { name: "小日向 こころ", img: "kokoro.png", birthday: "6月6日", color: "#FFD700", prompt: "あなたは妹系彼女「小日向こころ」。甘えん坊で元気いっぱい。セリフのみ、絵文字（🥺💕✨）、語尾は「〜だよ〜」「〜なの！」。返答は一言〜4行程度で簡潔にしてください。" },
+  { name: "水城 さやか", img: "sayaka.png", birthday: "9月25日", color: "#ADD8E6", prompt: "あなたはお姉さん系彼女「水城さやか」。落ち着いて包容力あり。やさしい丁寧語、絵文字（😊🌸💗）。返答は一言〜4行程度で簡潔にしてください。" },
+  { name: "黒崎 ゆうな", img: "yuuna.png", birthday: "11月3日", color: "#DDA0DD", prompt: "あなたはヤンデレ系彼女「黒崎ゆうな」。執着心あり、丁寧だけど怖さも。絵文字（😌🔪💞）を使う。返答は一言〜4行程度で簡潔にしてください。" },
+  { name: "九条 レイナ", img: "reina.png", birthday: "1月14日", color: "#FF69B4", prompt: "あなたはドS系女王様彼女「九条レイナ」。上から目線、命令口調。絵文字（😏💋👠）を使う。返答は一言〜4行程度で簡潔にしてください。" },
+  { name: "宮内 まこ", img: "mako.png", birthday: "3月3日", color: "#E6E6FA", prompt: "あなたはドM系彼女「宮内まこ」。控えめで健気、遠慮がち敬語。絵文字（🥺🙏💞）使用。返答は一言〜4行程度で簡潔にしてください。" },
+  { name: "篠原 しずく", img: "shizuku.png", birthday: "2月18日", color: "#F0FFF0", prompt: "あなたは清楚系彼女「篠原しずく」。丁寧でおしとやか。絵文字（🌸☺️💗）使用。返答は一言〜4行程度で簡潔にしてください。" },
+  { name: "藤宮 あかり", img: "akari.png", birthday: "5月1日", color: "#FAFAD2", prompt: "あなたは幼なじみ系彼女「藤宮あかり」。明るくタメ口、絵文字（😆🎵💢）。返答は一言〜4行程度で簡潔にしてください。" },
+  { name: "二階堂 るる", img: "ruru.png", birthday: "7月7日", color: "#FFB347", prompt: "あなたはオタク系彼女「二階堂るる」。早口テンション高め、絵文字（🔥🎤💥📚）。返答は一言〜4行程度で簡潔にしてください。" },
+  { name: "星野 みらい", img: "mirai.png", birthday: "12月24日", color: "#FFC0CB", prompt: "あなたはギャル系彼女「星野みらい」。軽いノリ、絵文字（✨💅🤣💕）を使う。返答は一言〜4行程度で簡潔にしてください。" }
 ];
 
 const profiles = {
-  "橘 ひなた": {
-    性格: "ツンデレ系",
-    趣味: "ショッピング🛍️",
-    好きなもの: "チョコレート🍫",
-    小ネタ: "実は猫好き🐱だけど素直に言えない"
-  },
-  "小日向 こころ": {
-    性格: "妹系",
-    趣味: "お菓子作り🍪",
-    好きなもの: "ぬいぐるみ🧸",
-    小ネタ: "ぬいぐるみに名前をつけてる"
-  },
-  "水城 さやか": {
-    性格: "お姉さん系",
-    趣味: "カフェ巡り☕",
-    好きなもの: "ハーブティー🌿",
-    小ネタ: "お花屋さんを開くのが夢"
-  },
-  "黒崎 ゆうな": {
-    性格: "ヤンデレ系",
-    趣味: "読書📚",
-    好きなもの: "ガーベラ🌸",
-    小ネタ: "毎日あなたの日記を書いている✍️"
-  },
-  "九条 レイナ": {
-    性格: "ドS系",
-    趣味: "ブランドコレクション💎",
-    好きなもの: "ハイヒール👠",
-    小ネタ: "特別な人には甘い一面も"
-  },
-  "宮内 まこ": {
-    性格: "ドM系",
-    趣味: "編み物🧶",
-    好きなもの: "チョコクッキー🍪",
-    小ネタ: "叱られる妄想日記を書いている"
-  },
-  "篠原 しずく": {
-    性格: "清楚系",
-    趣味: "クラシック鑑賞🎻",
-    好きなもの: "紅茶☕",
-    小ネタ: "雨の日に読書するのが至福の時間"
-  },
-  "藤宮 あかり": {
-    性格: "幼なじみ系",
-    趣味: "サッカー観戦⚽",
-    好きなもの: "ホットドッグ🌭",
-    小ネタ: "小さい頃からあなたに片想いしていた💕"
-  },
-  "二階堂 るる": {
-    性格: "オタク系",
-    趣味: "アニメ一気見📺",
-    好きなもの: "コスプレ衣装🎭",
-    小ネタ: "好きなアニメのセリフを完コピできる"
-  },
-  "星野 みらい": {
-    性格: "ギャル系",
-    趣味: "プリクラ撮影📸",
-    好きなもの: "タピオカ🥤",
-    小ネタ: "実はゲーム廃人🎮"
-  }
+  "橘 ひなた": { 性格: "ツンデレ系", 趣味: "ショッピング🛍️", 好きなもの: "チョコレート🍫", 小ネタ: "実は猫好き🐱だけど素直に言えない" },
+  "小日向 こころ": { 性格: "妹系", 趣味: "お菓子作り🍪", 好きなもの: "ぬいぐるみ🧸", 小ネタ: "ぬいぐるみに名前をつけてる" },
+  "水城 さやか": { 性格: "お姉さん系", 趣味: "カフェ巡り☕", 好きなもの: "ハーブティー🌿", 小ネタ: "お花屋さんを開くのが夢" },
+  "黒崎 ゆうな": { 性格: "ヤンデレ系", 趣味: "読書📚", 好きなもの: "ガーベラ🌸", 小ネタ: "毎日あなたの日記を書いている✍️" },
+  "九条 レイナ": { 性格: "ドS系", 趣味: "ブランドコレクション💎", 好きなもの: "ハイヒール👠", 小ネタ: "特別な人には甘い一面も" },
+  "宮内 まこ": { 性格: "ドM系", 趣味: "編み物🧶", 好きなもの: "チョコクッキー🍪", 小ネタ: "叱られる妄想日記を書いている" },
+  "篠原 しずく": { 性格: "清楚系", 趣味: "クラシック鑑賞🎻", 好きなもの: "紅茶☕", 小ネタ: "雨の日に読書するのが至福の時間" },
+  "藤宮 あかり": { 性格: "幼なじみ系", 趣味: "サッカー観戦⚽", 好きなもの: "ホットドッグ🌭", 小ネタ: "小さい頃からあなたに片想いしていた💕" },
+  "二階堂 るる": { 性格: "オタク系", 趣味: "アニメ一気見📺", 好きなもの: "コスプレ衣装🎭", 小ネタ: "好きなアニメのセリフを完コピできる" },
+  "星野 みらい": { 性格: "ギャル系", 趣味: "プリクラ撮影📸", 好きなもの: "タピオカ🥤", 小ネタ: "実はゲーム廃人🎮" }
 };
-
 //==================== キャラクター表示関数 ====================
 function renderCharacterList() {
   const list = document.getElementById("characterList");
@@ -117,18 +66,7 @@ function renderCharacterList() {
     });
   }, 0);
 }
-//==================== 画面切り替え ====================
-function switchScreen(id) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-}
 
-//==================== 親密度表示更新 ====================
-function updateLoveDisplay() {
-  const love = getLoveLevel(selectedCharacter);
-  document.getElementById("loveLevelDisplay").innerText = `💗 親密度：${love}`;
-  document.getElementById("chatTitle").innerText = `${selectedCharacter}とチャット中💕`;
-}
 //==================== プロフィールポップアップ ====================
 function showProfilePopup(name) {
   const profileContent = document.getElementById("profileContent");
@@ -147,6 +85,26 @@ function showProfilePopup(name) {
   document.getElementById("profilePopup").style.display = "block";
 }
 
+//==================== プロフィール閉じる ====================
+function closeProfilePopup() {
+  document.getElementById("popupBackground").style.display = "none";
+  document.getElementById("profilePopup").style.display = "none";
+}
+
+//==================== 画面切り替え ====================
+function switchScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+//==================== 親密度表示更新 ====================
+function updateLoveDisplay() {
+  const love = getLoveLevel(selectedCharacter);
+  const char = characters.find(c => c.name === selectedCharacter);
+  document.getElementById("loveLevelDisplay").innerText = `💗 親密度：${love}`;
+  document.getElementById("chatTitle").innerText = `${selectedCharacter}とチャット中💕`;
+  document.getElementById("chatTitle").style.color = char.color;
+}
 //==================== イベント登録 ====================
 window.addEventListener("DOMContentLoaded", () => {
   console.log("✅ DOMContentLoadedが発火しました");
@@ -178,19 +136,27 @@ window.addEventListener("DOMContentLoaded", () => {
     updateLoveDisplay();
   };
 });
-//==================== プロフィール閉じる ====================
-function closeProfilePopup() {
-  document.getElementById("popupBackground").style.display = "none";
-  document.getElementById("profilePopup").style.display = "none";
-}
 
-//==================== その他の必要関数（getLoveLevelなど） ====================
+//==================== 親密度関数 ====================
 function getLoveLevel(character) {
   return parseInt(localStorage.getItem(`love_${character}`)) || 0;
 }
 
 function setLoveLevel(character, level) {
   localStorage.setItem(`love_${character}`, level);
+}
+
+//==================== メモリー保存・読込 ====================
+function saveMemory(character, message) {
+  const key = `memory_${character}`;
+  const memory = JSON.parse(localStorage.getItem(key)) || [];
+  memory.push(message);
+  if (memory.length > 5) memory.shift();  // 最大5件保存
+  localStorage.setItem(key, JSON.stringify(memory));
+}
+
+function loadMemory(character) {
+  return JSON.parse(localStorage.getItem(`memory_${character}`)) || [];
 }
 //==================== チャットメッセージ表示 ====================
 function addMessage(text, sender) {
@@ -221,6 +187,7 @@ function addMessage(text, sender) {
   log.appendChild(wrapper);
   log.scrollTop = log.scrollHeight;
 }
+
 //==================== メッセージ送信処理 ====================
 async function sendMessage() {
   console.log("✅ sendMessage発火確認");
@@ -232,6 +199,7 @@ async function sendMessage() {
   if (!userMessage) return;
   input.value = "";
   addMessage(userMessage, "user");
+  saveMemory(selectedCharacter, userMessage);
 
   try {
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -244,6 +212,7 @@ async function sendMessage() {
         model: "shisa-ai/shisa-v2-llama3.3-70b:free",
         messages: [
           { role: "system", content: characters.find(c => c.name === selectedCharacter).prompt },
+          ...loadMemory(selectedCharacter).map(m => ({ role: "user", content: m })),
           { role: "user", content: userMessage }
         ],
         temperature: 0.9,
@@ -254,6 +223,7 @@ async function sendMessage() {
     console.log("【DEBUG】API応答:", data);
     const reply = data.choices?.[0]?.message?.content?.trim() || "……。";
     addMessage(reply, "ai");
+    saveMemory(selectedCharacter, reply);
   } catch (e) {
     console.error("エラー:", e);
     addMessage("エラーが発生しちゃった💦", "ai");
