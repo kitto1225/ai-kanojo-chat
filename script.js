@@ -178,6 +178,12 @@ window.addEventListener("DOMContentLoaded", () => {
     updateLoveDisplay();
   };
 });
+//==================== プロフィール閉じる ====================
+function closeProfilePopup() {
+  document.getElementById("popupBackground").style.display = "none";
+  document.getElementById("profilePopup").style.display = "none";
+}
+
 //==================== その他の必要関数（getLoveLevelなど） ====================
 function getLoveLevel(character) {
   return parseInt(localStorage.getItem(`love_${character}`)) || 0;
