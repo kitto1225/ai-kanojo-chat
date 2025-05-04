@@ -133,19 +133,20 @@ function updateLoveDisplay() {
 function showProfilePopup(name) {
   const profileContent = document.getElementById("profileContent");
   const char = characters.find(c => c.name === name);
+  const profile = profiles[name];
+
   profileContent.innerHTML = `
-    <h2>${name}</h2>
-    <p>🎂 誕生日：${char.birthday}</p>
-    <p>💬 このキャラのプロフィールは別途用意してね！</p>
+    <h2 style="color: ${char.color};">${name}</h2>
+    <p>🎂 <strong>誕生日：</strong>${char.birthday}</p>
+    <p>💖 <strong>性格：</strong>${profile.性格}</p>
+    <p>🎯 <strong>趣味：</strong>${profile.趣味}</p>
+    <p>🍰 <strong>好きなもの：</strong>${profile.好きなもの}</p>
+    <p>🔍 <strong>小ネタ：</strong>${profile.小ネタ}</p>
   `;
   document.getElementById("popupBackground").style.display = "block";
   document.getElementById("profilePopup").style.display = "block";
 }
 
-function closeProfilePopup() {
-  document.getElementById("popupBackground").style.display = "none";
-  document.getElementById("profilePopup").style.display = "none";
-}
 //==================== イベント登録 ====================
 window.addEventListener("DOMContentLoaded", () => {
   console.log("✅ DOMContentLoadedが発火しました");
