@@ -224,3 +224,8 @@ window.addEventListener("DOMContentLoaded", () => {
     createStampButtons();  // 再生成
   };
 });
+//==================== 画面切り替え ====================
+function switchScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
