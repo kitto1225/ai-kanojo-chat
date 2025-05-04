@@ -82,200 +82,61 @@ const profiles = {
   }
 };
 
-//==================== 💗 親密度（関係性）ロジック ====================//
-function getRelationshipStage(love) {
-  if (love >= 90) return "恋人";
-  if (love >= 70) return "恋人未満";
-  if (love >= 50) return "いい感じ";
-  if (love >= 30) return "友達";
-  if (love >= 10) return "知り合い";
-  return "初対面";
-}
+//==================== キャラクター表示関数 ====================
+function renderCharacterList() {
+  const list = document.getElementById("characterList");
+  list.innerHTML = "";
+  characters.forEach(c => {
+    const card = document.createElement("div");
+    card.className = "character-card";
+    card.style.backgroundColor = c.color;
+    card.innerHTML = `
+      <img src="./icons/${c.img}" alt="${c.name}">
+      <div>
+        <strong>${c.name}</strong><br>
+        🎂 ${c.birthday}
+        <span class="infoBtn" data-name="${c.name}" style="margin-left:10px;cursor:pointer;">ℹ️</span>
+      </div>
+    `;
+    card.onclick = () => {
+      selectedCharacter = c.name;
+      switchScreen("chatScreen");
+      updateLoveDisplay();
+    };
+    list.appendChild(card);
+  });
 
-function checkRelationshipUpgrade() {
-  const love = getLoveLevel(selectedCharacter);
-  const stage = getRelationshipStage(love);
-  if (stage !== lastStage) {
-    addMessage(`（関係が「${stage}」になったみたい…💗）`, "ai");
-    lastStage = stage;
-  }
-}
-
-//==================== 💬 チャットログ保存・読み込み ====================//
-function saveChatLog(character, text, sender) {
-  const key = `chatLog_${character}`;
-  const log = JSON.parse(localStorage.getItem(key)) || [];
-  log.push({ text, sender });
-  localStorage.setItem(key, JSON.stringify(log));
-  console.log("✅ チャット履歴保存:", key, log);
-}
-
-function loadChatLog(character) {
-  const log = JSON.parse(localStorage.getItem(`chatLog_${character}`)) || [];
-  const chatLog = document.getElementById("chatLog");
-  chatLog.innerHTML = "";
-  console.log("✅ チャット履歴読み込み:", log);
-  log.forEach(entry => addMessage(entry.text, entry.sender, false)); // 保存しないモード
-}
-
-//==================== 💬 メッセージ表示 ====================//
-function addMessage(text, sender, save = true) {
-  const log = document.getElementById("chatLog");
-  const wrapper = document.createElement("div");
-  wrapper.className = "message-wrapper";
-  wrapper.style.display = "flex";
-  wrapper.style.alignItems = "flex-start";
-
-  if (sender === "ai") {
-    const img = document.createElement("img");
-    const char = characters.find(c => c.name === selectedCharacter);
-    img.src = `./icons/${char.img}`;
-    img.alt = selectedCharacter;
-    img.style.width = "40px";
-    img.style.height = "40px";
-    img.style.borderRadius = "50%";
-    img.style.marginRight = "8px";
-    wrapper.appendChild(img);
-  } else {
-    wrapper.style.justifyContent = "flex-end";
-  }
-
-  const msg = document.createElement("div");
-  msg.className = `message ${sender}`;
-  msg.innerText = text;
-  wrapper.appendChild(msg);
-  log.appendChild(wrapper);
-  log.scrollTop = log.scrollHeight;
-
-  if (save) {
-    saveChatLog(selectedCharacter, text, sender);
-  }
-}
-
-//==================== 📤 メッセージ送信＆API応答 ====================//
-async function sendMessage() {
-  const input = document.getElementById("userInput");
-  const userMessage = input.value.trim();
-  console.log("【DEBUG】入力:", userMessage);
-  console.log("【DEBUG】選択キャラ:", selectedCharacter);
-
-  if (!userMessage) return;
-  if (!selectedCharacter) {
-    alert("キャラクターを選択してください！");
-    return;
-  }
-
-  input.value = "";
-  addMessage(userMessage, "user");
-  saveMemory(selectedCharacter, userMessage);
-  lastInteractionTime = Date.now();
-
-  let love = getLoveLevel(selectedCharacter);
-  love += adjustLoveLevelByMessage(userMessage);
-  setLoveLevel(selectedCharacter, love);
-  updateLoveDisplay();
-  checkRelationshipUpgrade();
-
-  const memory = loadMemory(selectedCharacter).map(m => ({ role: "user", content: m }));
-  const messages = [
-    { role: "system", content: getPrompt() },
-    ...memory,
-    { role: "user", content: userMessage }
-  ];
-
-  console.log("【DEBUG】送信内容:", messages);
-
-  try {
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: "shisa-ai/shisa-v2-llama3.3-70b:free",
-        messages,
-        temperature: 0.9,
-        top_p: 0.95,
-        max_tokens: 100
-      })
+  setTimeout(() => {
+    document.querySelectorAll(".infoBtn").forEach(btn => {
+      btn.addEventListener("click", e => {
+        e.stopPropagation();
+        const name = btn.dataset.name;
+        selectedCharacter = name;
+        showProfilePopup(name);
+      });
     });
-    const data = await res.json();
-    console.log("【DEBUG】API応答:", data);
-    const reply = data.choices?.[0]?.message?.content?.trim() || "……。";
-    addMessage(reply, "ai");
-    saveMemory(selectedCharacter, reply);
-  } catch (e) {
-    console.error("APIエラー:", e);
-    addMessage("エラーが発生しちゃったよ…" + e.message, "ai");
-  }
+  }, 0);
+}
+//==================== 画面切り替え ====================
+function switchScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
 }
 
-//==================== ✨ その他の必要関数 ====================//
-function getPrompt() {
-  const char = characters.find(c => c.name === selectedCharacter);
-  const memory = loadMemory(selectedCharacter).map(m => `「${m}」`).join("\n");
-  const love = getLoveLevel(selectedCharacter);
-  const stage = getRelationshipStage(love);
-
-  let extraTone = "";
-  switch (stage) {
-    case "恋人": extraTone = "あなたは彼氏のことが大好きで、素直に甘えて接してください。"; break;
-    case "恋人未満": extraTone = "彼に好意を持っていて、照れながら話しています。"; break;
-    case "いい感じ": extraTone = "最近距離が縮まってきて、嬉しそうに接しています。"; break;
-    case "友達": extraTone = "親しみを込めてフレンドリーに会話してください。"; break;
-    case "知り合い": extraTone = "まだ少し距離のある丁寧な会話をしてください。"; break;
-    default: extraTone = "初対面の相手に礼儀正しく丁寧に話してください。";
-  }
-
-  return `${char.prompt}\n【現在の関係性：${stage}】\n${extraTone}\n以前の会話で印象的だったセリフ：\n${memory}`;
-}
-
-function saveMemory(character, message) {
-  const key = `memory_${character}`;
-  const memory = JSON.parse(localStorage.getItem(key)) || [];
-  memory.push(message);
-  if (memory.length > 5) memory.shift();
-  localStorage.setItem(key, JSON.stringify(memory));
-}
-
-function loadMemory(character) {
-  return JSON.parse(localStorage.getItem(`memory_${character}`)) || [];
-}
-
-function getLoveLevel(character) {
-  return parseInt(localStorage.getItem(`love_${character}`)) || 0;
-}
-
-function setLoveLevel(character, level) {
-  localStorage.setItem(`love_${character}`, level);
-}
-
-function adjustLoveLevelByMessage(message) {
-  const positives = ["好き", "楽しい", "かわいい", "かっこいい", "素敵", "大好き", "愛してる"];
-  const negatives = ["嫌い", "疲れた", "ムカつく", "キモい", "最悪"];
-  let adjustment = 0;
-  positives.forEach(w => { if (message.includes(w)) adjustment += 2; });
-  negatives.forEach(w => { if (message.includes(w)) adjustment -= 3; });
-  return adjustment;
-}
-
+//==================== 親密度表示更新 ====================
 function updateLoveDisplay() {
   const love = getLoveLevel(selectedCharacter);
   document.getElementById("loveLevelDisplay").innerText = `💗 親密度：${love}`;
   document.getElementById("chatTitle").innerText = `${selectedCharacter}とチャット中💕`;
 }
-
+//==================== プロフィールポップアップ ====================
 function showProfilePopup(name) {
   const profileContent = document.getElementById("profileContent");
-  const p = characters.find(c => c.name === name);
+  const char = characters.find(c => c.name === name);
   profileContent.innerHTML = `
     <h2>${name}</h2>
-    <p>🎂 誕生日：${p.birthday}</p>
-    <p>💖 性格：${profiles[name].性格}</p>
-    <p>🎯 趣味：${profiles[name].趣味}</p>
-    <p>🍰 好きなもの：${profiles[name].好きなもの}</p>
-    <p>🔍 小ネタ：${profiles[name].小ネタ}</p>
+    <p>🎂 誕生日：${char.birthday}</p>
+    <p>💬 このキャラのプロフィールは別途用意してね！</p>
   `;
   document.getElementById("popupBackground").style.display = "block";
   document.getElementById("profilePopup").style.display = "block";
@@ -285,61 +146,42 @@ function closeProfilePopup() {
   document.getElementById("popupBackground").style.display = "none";
   document.getElementById("profilePopup").style.display = "none";
 }
-
-function switchScreen(id) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-}
-
-//==================== 🚀 アプリ起動処理 ====================//
+//==================== イベント登録 ====================
 window.addEventListener("DOMContentLoaded", () => {
   console.log("✅ DOMContentLoadedが発火しました");
   const $ = id => document.getElementById(id);
   console.log("✅ startBtn取得確認:", $("startBtn"));
 
-  $("startBtn").onclick = () => {
-    console.log("✅ startBtnクリックされました");
-    renderCharacterList();
-    switchScreen("homeScreen");
-  };
+  if ($("startBtn")) {
+    $("startBtn").onclick = () => {
+      console.log("✅ startBtnクリックされました");
+      renderCharacterList();
+      switchScreen("homeScreen");
+    };
+  }
 
   $("sendBtn").onclick = sendMessage;
-
   $("resetBtn").onclick = () => {
-    if (!selectedCharacter) {
-      alert("キャラクターが選択されていません！");
-      return;
-    }
     localStorage.removeItem(`memory_${selectedCharacter}`);
     localStorage.removeItem(`love_${selectedCharacter}`);
-    localStorage.removeItem(`chatLog_${selectedCharacter}`);
     $("chatLog").innerHTML = "";
     updateLoveDisplay();
   };
 
   $("backBtn").onclick = () => switchScreen("homeScreen");
 
-  $("downloadBtn").onclick = () => {
-    if (!selectedCharacter) {
-      alert("キャラクターが選択されていません！");
-      return;
-    }
-    const log = JSON.parse(localStorage.getItem(`chatLog_${selectedCharacter}`)) || [];
-    const textLog = log.map(entry => `${entry.sender === 'ai' ? 'AI' : 'ユーザー'}: ${entry.text}`).join("\n");
-    const blob = new Blob([textLog], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${selectedCharacter}_log.txt`;
-    a.click();
-  };
-
+  $("closeProfileBtn").onclick = closeProfilePopup;
   $("startChatBtn").onclick = () => {
     closeProfilePopup();
     switchScreen("chatScreen");
     updateLoveDisplay();
-    loadChatLog(selectedCharacter);
   };
-
-  $("closeProfileBtn").onclick = closeProfilePopup;
 });
+//==================== その他の必要関数（getLoveLevelなど） ====================
+function getLoveLevel(character) {
+  return parseInt(localStorage.getItem(`love_${character}`)) || 0;
+}
+
+function setLoveLevel(character, level) {
+  localStorage.setItem(`love_${character}`, level);
+}
