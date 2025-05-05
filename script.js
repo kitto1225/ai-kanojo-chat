@@ -158,13 +158,65 @@ async function sendMessage() {
   if (!userMessage) return;
   input.value = "";
   addMessage(userMessage, "user");
+  saveMemory(selectedCharacter, userMessage);
 
-  // 💡 仮の返信（APIは後から入れる）
-  setTimeout(() => {
-    addMessage(`${selectedCharacter}の返信だよ〜💬`, "ai");
-    saveMemory(selectedCharacter, `${selectedCharacter}の返信だよ〜💬`);
-  }, 500);
+  let love = getLoveLevel(selectedCharacter);
+  love += 5;  // 💡 親密度UP
+  setLoveLevel(selectedCharacter, love);
+  updateLoveDisplay();
+
+  // 💕 恋人判定
+  if (love >= 100 && !loverSinceDate) {
+    loverSinceDate = new Date().toISOString();
+    localStorage.setItem(`loverSince_${selectedCharacter}`, loverSinceDate);
+    addMessage("🌟 ついに恋人になったね💖 これからよろしくね！", "ai");
+    triggerLoverEffect();
+    document.body.style.background = "#ffe4e1";
+  }
+
+  // 関係ステージのメッセージ
+  const stage = loverSinceDate ? getLoverStage() : getRelationshipStage(love);
+  if (stage) {
+    console.log("💑 関係ステージ:", stage);
+    addMessage(`（今の関係：${stage}）`, "ai");
+  }
+
+  try {
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "shisa-ai/shisa-v2-llama3.3-70b:free",
+        messages: [
+          { role: "system", content: characters.find(c => c.name === selectedCharacter).prompt },
+          ...loadMemory(selectedCharacter).map(m => ({ role: "user", content: m })),
+          { role: "user", content: userMessage }
+        ],
+        temperature: 0.9,
+        max_tokens: 100
+      })
+    });
+    const data = await res.json();
+    console.log("【DEBUG】API応答:", data);
+
+    let reply = data.choices?.[0]?.message?.content?.trim() || "……。";
+
+    // 💓 恋人モード中の特別セリフ
+    if (loverSinceDate) {
+      reply = reply.replace(/あなた/g, "ダーリン").replace(/！/g, "❤️");
+    }
+
+    addMessage(reply, "ai");
+    saveMemory(selectedCharacter, reply);
+  } catch (e) {
+    console.error("エラー:", e);
+    addMessage("エラーが発生しちゃった💦", "ai");
+  }
 }
+
 //==================== チャットメッセージ表示 ====================
 function addMessage(text, sender) {
   const log = document.getElementById("chatLog");
