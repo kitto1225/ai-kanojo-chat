@@ -216,6 +216,14 @@ async function sendMessage() {
     addMessage("エラーが発生しちゃった💦", "ai");
   }
 }
+//==================== 関係ステージ判定 ====================
+function getRelationshipStage(love) {
+  if (love >= 100) return "恋人";
+  if (love >= 90) return "恋人未満";
+  if (love >= 60) return "いい感じ";
+  if (love >= 30) return "友達";
+  return "知り合い";
+}
 
 //==================== チャットメッセージ表示 ====================
 function addMessage(text, sender) {
