@@ -134,6 +134,93 @@ function saveMemory(character, message) {
 function loadMemory(character) {
   return JSON.parse(localStorage.getItem(`memory_${character}`)) || [];
 }
+//==================== 💗 親密度増減ロジック ====================
+function calculateLoveDelta(userMessage) {
+  let delta = 0;
+
+  // 🌟 ポジティブワード判定
+  const positiveWords = ["好き", "ありがとう", "楽しい", "嬉しい", "大好き", "最高", "かわいい"];
+  if (positiveWords.some(word => userMessage.includes(word))) {
+    delta += 2;
+    console.log("🌸 ポジティブワード +2");
+  }
+
+  // ⚠️ ネガティブ・卑猥ワード判定
+  const negativeWords = ["バカ", "死ね", "うざい", "キモい", "消えろ", "変態", "エロ"];
+  if (negativeWords.some(word => userMessage.includes(word))) {
+    delta -= 50;
+    console.log("💥 ネガティブ・卑猥ワード -50");
+  }
+
+  // 📜 長文ボーナス
+  if (userMessage.length >= 30) {
+    delta += 3;
+    console.log("📜 長文ボーナス +3");
+  }
+
+  // 🌙 深夜・早朝ボーナス
+  const hour = new Date().getHours();
+  if (hour >= 0 && hour <= 5) {
+    delta += 2;
+    console.log("🌙 深夜・早朝ボーナス +2");
+  }
+
+  // ⚠️ 連投ペナルティ（30秒以内）
+  const lastSent = parseInt(localStorage.getItem(`lastSent_${selectedCharacter}`)) || 0;
+  const now = Date.now();
+  if (now - lastSent < 30 * 1000) {
+    delta -= 2;
+    console.log("⚠️ 連投ペナルティ -2");
+  }
+  localStorage.setItem(`lastSent_${selectedCharacter}`, now);
+
+  // 🎂 誕生日ボーナス
+  const today = new Date().toLocaleDateString("ja-JP", { month: "narrow", day: "numeric" });
+  const birthday = characters.find(c => c.name === selectedCharacter).birthday.replace("月", " ").replace("日", "");
+  if (today === birthday) {
+    delta += 20;
+    console.log("🎂 誕生日ボーナス +20");
+  }
+
+  // 🔄 送信回数ボーナス（10回ごとに+1）
+  const sendCountKey = `sendCount_${selectedCharacter}`;
+  let sendCount = parseInt(localStorage.getItem(sendCountKey)) || 0;
+  sendCount++;
+  if (sendCount % 10 === 0) {
+    delta += 1;
+    console.log("🏆 送信10回ごとボーナス +1");
+  }
+  localStorage.setItem(sendCountKey, sendCount);
+
+  // 📅 連続日ボーナス（3日連続で+1）
+  const lastDateKey = `lastDate_${selectedCharacter}`;
+  const lastDate = localStorage.getItem(lastDateKey);
+  const todayDate = new Date().toLocaleDateString("ja-JP");
+  let streakKey = `streak_${selectedCharacter}`;
+  let streak = parseInt(localStorage.getItem(streakKey)) || 0;
+  if (lastDate !== todayDate) {
+    if (lastDate) {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterStr = yesterday.toLocaleDateString("ja-JP");
+      if (lastDate === yesterStr) {
+        streak++;
+      } else {
+        streak = 1;  // リセット
+      }
+    } else {
+      streak = 1;
+    }
+    localStorage.setItem(lastDateKey, todayDate);
+    localStorage.setItem(streakKey, streak);
+  }
+  if (streak >= 3) {
+    delta += 1;
+    console.log("🔥 連続日ボーナス +1");
+  }
+
+  return delta;
+}
 
 //==================== ハート演出 ====================
 function triggerLoverEffect() {
@@ -169,9 +256,12 @@ async function sendMessage() {
   saveMemory(selectedCharacter, userMessage);
 
   let love = getLoveLevel(selectedCharacter);
-  love += 5;  // 💡 親密度UP
-  setLoveLevel(selectedCharacter, love);
-  updateLoveDisplay();
+const delta = calculateLoveDelta(userMessage);
+love += delta;
+setLoveLevel(selectedCharacter, love);
+updateLoveDisplay();
+console.log(`💗 親密度変化: ${delta}（合計：${love}）`);
+
 
   // 💕 恋人判定
   if (love >= 100 && !loverSinceDate) {
