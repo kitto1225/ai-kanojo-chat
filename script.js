@@ -147,6 +147,24 @@ function triggerLoverEffect() {
   document.body.appendChild(heart);
   setTimeout(() => document.body.removeChild(heart), 3000);
 }
+//==================== メッセージ送信 ====================
+async function sendMessage() {
+  console.log("✅ sendMessage発火確認");
+  const input = document.getElementById("userInput");
+  const userMessage = input.value.trim();
+  console.log("【DEBUG】入力:", userMessage);
+  console.log("【DEBUG】選択キャラ:", selectedCharacter);
+
+  if (!userMessage) return;
+  input.value = "";
+  addMessage(userMessage, "user");
+
+  // 💡 仮の返信（APIは後から入れる）
+  setTimeout(() => {
+    addMessage(`${selectedCharacter}の返信だよ〜💬`, "ai");
+    saveMemory(selectedCharacter, `${selectedCharacter}の返信だよ〜💬`);
+  }, 500);
+}
 
 //==================== スタンプボタン ====================
 function createStampButtons() {
