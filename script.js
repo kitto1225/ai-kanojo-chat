@@ -255,7 +255,7 @@ function getRelationshipStage(love) {
   if (love >= 30) return "友達";
   return "知り合い";
 }
-//==================== メッセージ送信 ====================
+//==================== 📩 メッセージ送信 ====================
 async function sendMessage() {
   console.log("✅ sendMessage発火確認");
   const input = document.getElementById("userInput");
@@ -265,8 +265,10 @@ async function sendMessage() {
 
   if (!userMessage) return;
   input.value = "";
+
+  // 💬 ユーザー側
   addMessage(userMessage, "user");
-  saveMemory(selectedCharacter, userMessage);
+  saveMemory(selectedCharacter, { sender: "user", text: userMessage });
 
   let love = getLoveLevel(selectedCharacter);
   const delta = calculateLoveDelta(userMessage);
@@ -309,7 +311,10 @@ async function sendMessage() {
         model: "shisa-ai/shisa-v2-llama3.3-70b:free",
         messages: [
           { role: "system", content: characters.find(c => c.name === selectedCharacter).prompt },
-          ...loadMemory(selectedCharacter).map(m => ({ role: "user", content: m })),
+          ...loadMemory(selectedCharacter).map(entry => ({
+            role: entry.sender === "user" ? "user" : "assistant",
+            content: entry.text
+          })),
           { role: "user", content: userMessage }
         ],
         temperature: 0.9,
@@ -326,8 +331,10 @@ async function sendMessage() {
       reply = reply.replace(/あなた/g, "ダーリン").replace(/！/g, "❤️");
     }
 
+    // 🤖 AI側
     addMessage(reply, "ai");
-    saveMemory(selectedCharacter, reply);
+    saveMemory(selectedCharacter, { sender: "ai", text: reply });
+
   } catch (e) {
     console.error("エラー:", e);
     addMessage("エラーが発生しちゃった💦", "ai");
