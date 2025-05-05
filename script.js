@@ -147,13 +147,13 @@ function saveMemory(character, message) {
 function loadMemory(character) {
   return JSON.parse(localStorage.getItem(`memory_${character}`)) || [];
 }
-//==================== チャットログ読み込み ====================//
+//==================== 🗂️ チャットログ読み込み ====================
 function loadChatLog(character) {
   const log = document.getElementById("chatLog");
   log.innerHTML = ""; // 💥 まず既存をクリア
   const memory = loadMemory(character);
-  memory.forEach(message => {
-    addMessage(message, "user");  // 🔄 過去の履歴として表示
+  memory.forEach(entry => {
+    addMessage(entry.text, entry.sender);  // 🔄 senderごとに表示
   });
 }
 //==================== 💗 親密度増減ロジック ====================
