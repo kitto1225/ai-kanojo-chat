@@ -39,6 +39,18 @@ const loverStages = [
   { name: "バカップル期", days: 90 },
   { name: "夫婦感覚期", days: 180 }
 ];
+//==================== 恋人ステージ判定 ====================
+function getLoverStage() {
+  if (!loverSinceDate) return null;
+  const daysPassed = Math.floor((Date.now() - new Date(loverSinceDate)) / (1000 * 60 * 60 * 24));
+  let currentStage = loverStages[0].name;
+  loverStages.forEach(stage => {
+    if (daysPassed >= stage.days) {
+      currentStage = stage.name;
+    }
+  });
+  return `${currentStage}（付き合って${daysPassed}日目💑）`;
+}
 
 //==================== キャラクター表示 ====================
 function renderCharacterList() {
@@ -256,12 +268,11 @@ async function sendMessage() {
   saveMemory(selectedCharacter, userMessage);
 
   let love = getLoveLevel(selectedCharacter);
-const delta = calculateLoveDelta(userMessage);
-love += delta;
-setLoveLevel(selectedCharacter, love);
-updateLoveDisplay();
-console.log(`💗 親密度変化: ${delta}（合計：${love}）`);
-
+  const delta = calculateLoveDelta(userMessage);
+  love += delta;
+  setLoveLevel(selectedCharacter, love);
+  updateLoveDisplay();
+  console.log(`💗 親密度変化: ${delta}（合計：${love}）`);
 
   // 💕 恋人判定
   if (love >= 100 && !loverSinceDate) {
@@ -272,11 +283,18 @@ console.log(`💗 親密度変化: ${delta}（合計：${love}）`);
     document.body.style.background = "#ffe4e1";
   }
 
-  // 関係ステージのメッセージ
-  const stage = loverSinceDate ? getLoverStage() : getRelationshipStage(love);
-  if (stage) {
-    console.log("💑 関係ステージ:", stage);
+  // ⭐ ステージ判定（変化時だけ表示）
+  let stage = "";
+  if (love >= 100) {
+    stage = getLoverStage();
+  } else {
+    stage = getRelationshipStage(love);
+  }
+
+  if (stage !== lastStage) {
+    console.log("💑 関係ステージ変化:", stage);
     addMessage(`（今の関係：${stage}）`, "ai");
+    lastStage = stage;
   }
 
   try {
@@ -314,6 +332,7 @@ console.log(`💗 親密度変化: ${delta}（合計：${love}）`);
     addMessage("エラーが発生しちゃった💦", "ai");
   }
 }
+
 //==================== チャットメッセージ表示 ====================
 function addMessage(text, sender) {
   const log = document.getElementById("chatLog");
