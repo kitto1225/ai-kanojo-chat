@@ -177,15 +177,6 @@ function calculateLoveDelta(userMessage) {
     console.log("🌙 深夜・早朝ボーナス +2");
   }
 
-  // ⚠️ 連投ペナルティ（30秒以内）
-  const lastSent = parseInt(localStorage.getItem(`lastSent_${selectedCharacter}`)) || 0;
-  const now = Date.now();
-  if (now - lastSent < 30 * 1000) {
-    delta -= 2;
-    console.log("⚠️ 連投ペナルティ -2");
-  }
-  localStorage.setItem(`lastSent_${selectedCharacter}`, now);
-
   // 🎂 誕生日ボーナス
   const today = new Date().toLocaleDateString("ja-JP", { month: "narrow", day: "numeric" });
   const birthday = characters.find(c => c.name === selectedCharacter).birthday.replace("月", " ").replace("日", "");
