@@ -165,6 +165,35 @@ async function sendMessage() {
     saveMemory(selectedCharacter, `${selectedCharacter}の返信だよ〜💬`);
   }, 500);
 }
+//==================== チャットメッセージ表示 ====================
+function addMessage(text, sender) {
+  const log = document.getElementById("chatLog");
+  const wrapper = document.createElement("div");
+  wrapper.className = "message-wrapper";
+  wrapper.style.display = "flex";
+  wrapper.style.alignItems = "flex-start";
+
+  if (sender === "ai") {
+    const img = document.createElement("img");
+    const char = characters.find(c => c.name === selectedCharacter);
+    img.src = `./icons/${char.img}`;
+    img.alt = selectedCharacter;
+    img.style.width = "40px";
+    img.style.height = "40px";
+    img.style.borderRadius = "50%";
+    img.style.marginRight = "8px";
+    wrapper.appendChild(img);
+  } else {
+    wrapper.style.justifyContent = "flex-end";
+  }
+
+  const msg = document.createElement("div");
+  msg.className = `message ${sender}`;
+  msg.innerText = text;
+  wrapper.appendChild(msg);
+  log.appendChild(wrapper);
+  log.scrollTop = log.scrollHeight;
+}
 
 //==================== スタンプボタン ====================
 function createStampButtons() {
