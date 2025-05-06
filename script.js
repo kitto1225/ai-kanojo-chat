@@ -137,11 +137,11 @@ function getLoveLevel(character) {
 function setLoveLevel(character, level) {
   localStorage.setItem(`love_${character}`, level);
 }
-function saveMemory(character, message) {
+function saveMemory(character, entry) {
   const key = `memory_${character}`;
   const memory = JSON.parse(localStorage.getItem(key)) || [];
-  memory.push(message);
-  if (memory.length > 10) memory.shift();
+  memory.push(entry);  // { sender: 'user'/'ai', text: '...' }
+  if (memory.length > 40) memory.shift();  // ← 履歴保持を40件までに増やす
   localStorage.setItem(key, JSON.stringify(memory));
 }
 function loadMemory(character) {
@@ -149,9 +149,11 @@ function loadMemory(character) {
 }
 //==================== 🗂️ チャットログ読み込み ====================
 function loadChatLog(character) {
+  console.log("🗂️ ロードするキャラ:", character);
   const log = document.getElementById("chatLog");
   log.innerHTML = ""; // 💥 まず既存をクリア
   const memory = loadMemory(character);
+  console.log("📜 読み込んだ履歴:", memory);  // ★確認ログ
   memory.forEach(entry => {
     addMessage(entry.text, entry.sender);  // 🔄 senderごとに表示
   });
