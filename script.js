@@ -142,6 +142,7 @@ function saveMemory(character, entry) {
   const memory = JSON.parse(localStorage.getItem(key)) || [];
   memory.push(entry);  // { sender: 'user'/'ai', text: '...' }
   if (memory.length > 40) memory.shift();  // ← 履歴保持を40件までに増やす
+   console.log("💾 保存先キー:", key, "現在の履歴:", memory);  // ← 追跡用
   localStorage.setItem(key, JSON.stringify(memory));
 }
 function loadMemory(character) {
