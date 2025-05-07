@@ -100,8 +100,13 @@ function loadLoverDate(character) {
 function switchScreen(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
-}
 
+  // 💥 チャット画面に切り替えるときはログもリセット
+  if (id === "chatScreen") {
+    const log = document.getElementById("chatLog");
+    if (log) log.innerHTML = "";
+  }
+}
 //==================== プロフィール ====================
 function showProfilePopup(name) {
   const profileContent = document.getElementById("profileContent");
