@@ -214,34 +214,33 @@ function calculateLoveDelta(userMessage) {
   localStorage.setItem(sendCountKey, sendCount);
 
   // 📅 連続日ボーナス（3日連続で+1）
-  const lastDateKey = `lastDate_${selectedCharacter}`;
-  const lastDate = localStorage.getItem(lastDateKey);
-  const todayDate = new Date().toLocaleDateString("ja-JP");
-  let streakKey = `streak_${selectedCharacter}`;
-  let streak = parseInt(localStorage.getItem(streakKey)) || 0;
-  if (lastDate !== todayDate) {
-    if (lastDate) {
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterStr = yesterday.toLocaleDateString("ja-JP");
-      if (lastDate === yesterStr) {
-        streak++;
-      } else {
-        streak = 1;  // リセット
-      }
-    } else {
-      streak = 1;
-    }
-    localStorage.setItem(lastDateKey, todayDate);
-    localStorage.setItem(streakKey, streak);
-  }
- if (streak >= 1) {  // ← ここ
-    delta += 1;
-    console.log(`🔥 連続${streak}日ボーナス +1`);
-  }
+const lastDateKey = `lastDate_${selectedCharacter}`;
+const lastDate = localStorage.getItem(lastDateKey);
+const todayDate = new Date().toLocaleDateString("ja-JP");
+let streakKey = `streak_${selectedCharacter}`;
+let streak = parseInt(localStorage.getItem(streakKey)) || 0;
 
-  return delta;  // ← 必ず外に出す
+if (lastDate !== todayDate) {  // ← ✅ ifはこれ1回でOK
+  if (lastDate) {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterStr = yesterday.toLocaleDateString("ja-JP");
+    if (lastDate === yesterStr) {
+      streak++;
+    } else {
+      streak = 1;  // リセット
+    }
+  } else {
+    streak = 1;
+  }
+  localStorage.setItem(lastDateKey, todayDate);
+  localStorage.setItem(streakKey, streak);
+
+  // ✅ 🎉 この中に delta を入れる
+  delta += 1;
+  console.log(`🔥 連続${streak}日目ボーナス +1`);
 }
+
 
 //==================== ハート演出 ====================
 function triggerLoverEffect() {
