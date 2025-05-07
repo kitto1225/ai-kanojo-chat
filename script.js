@@ -235,9 +235,11 @@ function calculateLoveDelta(userMessage) {
     localStorage.setItem(lastDateKey, todayDate);
     localStorage.setItem(streakKey, streak);
   }
-  if (streak >= 3) {
-    delta += 1;
-    console.log("🔥 連続日ボーナス +1");
+  if (streak >= 1) {  // ← 1日からボーナス
+  delta += 1;
+  console.log(`🔥 連続${streak}日ボーナス +1`);
+}
+
   }
 
   return delta;
