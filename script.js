@@ -417,15 +417,15 @@ $("resetBtn").onclick = () => {
   localStorage.removeItem(`memory_${selectedCharacter}`);
   localStorage.removeItem(`love_${selectedCharacter}`);
   localStorage.removeItem(`loverSince_${selectedCharacter}`);
-  localStorage.removeItem(`sendCount_${selectedCharacter}`);   // ←追加
-  localStorage.removeItem(`streak_${selectedCharacter}`);      // ←追加
-  localStorage.removeItem(`lastDate_${selectedCharacter}`);    // ←追加
+  localStorage.removeItem(`sendCount_${selectedCharacter}`);
+  localStorage.removeItem(`streak_${selectedCharacter}`);
+  localStorage.removeItem(`lastDate_${selectedCharacter}`);
   $("chatLog").innerHTML = "";
   loverSinceDate = null;
   updateLoveDisplay();
   document.body.style.background = "";
   console.log(`🗑️ ${selectedCharacter}の全データリセット`);
-}
+}; // ←←← ★ここにセミコロン
 
   $("backBtn").onclick = () => switchScreen("homeScreen");
   $("closeProfileBtn").onclick = closeProfilePopup;
