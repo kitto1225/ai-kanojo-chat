@@ -235,15 +235,12 @@ function calculateLoveDelta(userMessage) {
     localStorage.setItem(lastDateKey, todayDate);
     localStorage.setItem(streakKey, streak);
   }
-  if (streak >= 1) {  // ← 1日からボーナス
+if (streak >= 1) {  // ← 1日からボーナス
   delta += 1;
   console.log(`🔥 連続${streak}日ボーナス +1`);
 }
 
-  }
-
-  return delta;
-}
+return delta;  // ✅ 関数の最後で return
 
 //==================== ハート演出 ====================
 function triggerLoverEffect() {
