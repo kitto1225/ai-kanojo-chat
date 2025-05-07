@@ -240,6 +240,8 @@ if (lastDate !== todayDate) {  // ← ✅ ifはこれ1回でOK
   delta += 1;
   console.log(`🔥 連続${streak}日目ボーナス +1`);
 }
+return delta;
+}
 
 
 //==================== ハート演出 ====================
