@@ -274,6 +274,24 @@ async function sendMessage() {
 
   if (!userMessage) return;
   input.value = "";
+const basePrompt = characters.find(c => c.name === selectedCharacter).prompt;
+const loveLevel = getLoveLevel(selectedCharacter);
+
+let relationshipPrompt = "";
+
+if (loverSinceDate) {
+  relationshipPrompt = "あなたは今、恋人同士です。とても甘く、ラブラブで、愛情深い口調で話してください。💕";
+} else if (loveLevel >= 90) {
+  relationshipPrompt = "今は恋人未満の関係です。甘さを少し混ぜた優しい話し方をしてください。😊";
+} else if (loveLevel >= 60) {
+  relationshipPrompt = "今はいい感じの関係です。友達以上恋人未満のようなドキドキする話し方をしてください。☺️";
+} else if (loveLevel >= 30) {
+  relationshipPrompt = "今は友達のような関係です。カジュアルで明るい話し方をしてください。🙂";
+} else {
+  relationshipPrompt = "まだあまり親しくありません。少し距離感のある丁寧な話し方をしてください。😐";
+}
+
+const finalPrompt = `${basePrompt}\n\n【現在の親密度:${loveLevel}】\n${relationshipPrompt}`;
 
   // 💬 ユーザー側
   addMessage(userMessage, "user");
@@ -319,7 +337,7 @@ async function sendMessage() {
       body: JSON.stringify({
         model: "shisa-ai/shisa-v2-llama3.3-70b:free",
         messages: [
-          { role: "system", content: characters.find(c => c.name === selectedCharacter).prompt },
+          {role: "system", content: finalPrompt },
           ...loadMemory(selectedCharacter).map(entry => ({
             role: entry.sender === "user" ? "user" : "assistant",
             content: entry.text
