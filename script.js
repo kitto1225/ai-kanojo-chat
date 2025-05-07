@@ -435,5 +435,3 @@ $("resetBtn").onclick = () => {
     createStampButtons();
   };
 });
-console.log("✅ スクリプト読み込まれた！");
-console.log("✅ startBtn取得:", document.getElementById("startBtn"));
