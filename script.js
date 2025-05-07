@@ -427,7 +427,7 @@ $("resetBtn").onclick = () => {
   updateLoveDisplay();
   document.body.style.background = "";
   console.log(`🗑️ ${selectedCharacter}の全データリセット`);
-};
+}
 
   $("backBtn").onclick = () => switchScreen("homeScreen");
   $("closeProfileBtn").onclick = closeProfilePopup;
