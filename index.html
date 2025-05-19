@@ -307,10 +307,10 @@ body.dark-mode .date-divider {
   }
     /* ===== 📝 入力エリア ===== */
     #inputArea {
-      width: 90%;
-      max-width: 500px;
-      display: flex;
-      margin:0;
+  display: flex;
+  width: 95%;
+  max-width: 500px;
+  margin: 10px auto 10px 5px; /* ← 左だけ5pxに詰める */
     }
     #userInput {
       flex: 1;
@@ -543,15 +543,6 @@ body.dark-mode .date-divider {
 }
 #stampToggleBtn:hover {
   transform: scale(1.2);
-}
-
-
-/* 入力エリア */
-#inputArea {
-  display: flex;
-  width: 95%;
-  max-width: 500px;
-  margin: 10px 0; /* ← 余白調整 */
 }
 
 #userInput {
