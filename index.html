@@ -483,15 +483,13 @@ body.dark-mode .date-divider {
 }
 
 #chatLog {
+  flex: 1; /* ← 修正済み */
+  overflow-y: auto;
   width: 95%;
   max-width: 500px;
   background: white;
   border-radius: 15px;
   padding: 10px;
-  margin:0;
-  height: 50vh;
-  height: 75vh;
-  overflow-y: auto;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
@@ -553,7 +551,7 @@ body.dark-mode .date-divider {
   display: flex;
   width: 95%;
   max-width: 500px;
-  margin-top:0;
+  margin: 10px 0; /* ← 余白調整 */
 }
 
 #userInput {
