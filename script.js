@@ -574,26 +574,27 @@ ${relationshipPrompt}`;
   }
 
   try {
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "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" // ← ここをGroqのAPIキーに差し替えてください
-      },
-      body: JSON.stringify({
-        model: "llama-3.1-8b-instant",
-        messages: [
-          { role: "system", content: finalPrompt },
-          ...loadMemory(selectedCharacter).map(entry => ({
-            role: entry.sender === "user" ? "user" : "assistant",
-            content: entry.text
-          })),
-          { role: "user", content: userMessage }
-        ],
-        temperature: 0.9,
-        max_tokens: 100
-      })
-    });
+   const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer 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"
+  },
+  body: JSON.stringify({
+    model: "llama-3.1-8b-instant",
+    messages: [
+      { role: "system", content: finalPrompt },
+      ...loadMemory(selectedCharacter).map(entry => ({
+        role: entry.sender === "user" ? "user" : "assistant",
+        content: entry.text
+      })),
+      { role: "user", content: userMessage }
+    ],
+    temperature: 0.9,
+    max_tokens: 100
+  })
+});
+
 
     const data = await res.json();
     console.log("【DEBUG】API応答:", data);
