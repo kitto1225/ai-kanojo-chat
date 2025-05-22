@@ -572,7 +572,8 @@ ${relationshipPrompt}`;
     addMessage(`（今の関係：${stage}）`, "ai");
     lastStage = stage;
   }
-
+  
+try {
 // ✅ Groq API呼び出し（APIキーは個別に差し替え）
 const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
   method: "POST",
