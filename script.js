@@ -526,8 +526,6 @@ async function sendMessage() {
   }
 
   const nickname = nicknameMap[selectedCharacter] || "あなた";
-const basePrompt = characters.find(c => c.name === selectedCharacter).prompt;
-
 const systemPrompt = `
 あなたはAI彼女チャットアプリのキャラクターです。以下の設定とルールに厳密に従って、ユーザーと会話してください。
 
