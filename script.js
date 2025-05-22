@@ -573,12 +573,12 @@ ${relationshipPrompt}`;
     lastStage = stage;
   }
 
-  try {
-   const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+// ✅ Groq API呼び出し（APIキーは個別に差し替え）
+const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
-    "Authorization": "Bearer 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"
+    "Authorization": "Bearer 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" // ← ここだけ直す
   },
   body: JSON.stringify({
     model: "llama-3.1-8b-instant",
@@ -594,6 +594,7 @@ ${relationshipPrompt}`;
     max_tokens: 100
   })
 });
+
 
 
     const data = await res.json();
