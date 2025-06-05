@@ -582,39 +582,33 @@ ${relationshipPrompt}
     lastStage = stage;
   }
 
-  // ==================== Groq API送信 ====================
-  try {
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer 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"
-      },
-      body: JSON.stringify({
-        model: "llama-3.1-8b-instant",
-        messages: messages,
-        temperature: 0.7,
-        max_tokens: 200
-      })
-    });
+// ==================== Groq API送信 ====================
+try {
+  // APIキーを使わずに中継サーバーへ送信
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ messages })
+  });
 
-    const data = await res.json();
-    console.log("【DEBUG】API応答:", data);
+  const data = await res.json();  // ✅ ここだけでOK
+  console.log("【DEBUG】API応答:", data);
 
-    let reply = data.choices?.[0]?.message?.content?.trim() || "……。";
+  let reply = data.choices?.[0]?.message?.content?.trim() || "……。";
 
-    if (loverSinceDate) {
-      reply = reply.replace(/あなた/g, "ダーリン").replace(/！/g, "❤️");
-    }
-
-    addMessage(reply, "ai");
-    saveMemory(selectedCharacter, { sender: "ai", text: reply });
-    document.getElementById("chatTitle").innerText = `${selectedCharacter}とチャット中💕`;
-
-  } catch (error) {
-    console.error("❌ Groq APIエラー:", error);
-    addMessage("ごめん、今はうまく応答できないかも...😢", "ai", selectedCharacter);
+  if (loverSinceDate) {
+    reply = reply.replace(/あなた/g, "ダーリン").replace(/！/g, "❤️");
   }
+
+  addMessage(reply, "ai");
+  saveMemory(selectedCharacter, { sender: "ai", text: reply });
+  document.getElementById("chatTitle").innerText = `${selectedCharacter}とチャット中💕`;
+
+} catch (error) {
+  console.error("❌ Groq APIエラー:", error);
+  addMessage("ごめん、今はうまく応答できないかも...😢", "ai", selectedCharacter);
 }
 
 // ==================== 💬 チャットメッセージ表示（修正版） ====================
