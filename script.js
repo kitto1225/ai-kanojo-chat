@@ -588,7 +588,7 @@ ${relationshipPrompt}
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer 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"
+        "Authorization": "Bearer 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"
       },
       body: JSON.stringify({
         model: "llama-3.1-8b-instant",
